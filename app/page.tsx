@@ -25,6 +25,10 @@ export default function Page() {
   const [plainOn, setPlainOn] = useState(false);
   const [plain, setPlain] = useState<{ status: string; output?: string; name?: string; message?: string } | null>(null);
   const [copied, setCopied] = useState("");
+  const [typing, setTyping] = useState(false);
+  const [crowd, setCrowd] = useState(0); // bumps to replay the crowd reaction
+  const typeT = useRef<ReturnType<typeof setTimeout> | null>(null);
+  function pulse() { setTyping(true); if (typeT.current) clearTimeout(typeT.current); typeT.current = setTimeout(() => setTyping(false), 700); }
   const outRef = useRef<HTMLParagraphElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -43,7 +47,7 @@ export default function Page() {
     try {
       const r = await fetch("/api/townie", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ joke, city, ...extra }), signal: ac.signal });
       const j = (await r.json()) as Res;
-      setRes(j); setSel(j.selectedId ?? null);
+      setRes(j); setSel(j.selectedId ?? null); if (j.status === "ok") setCrowd((c) => c + 1);
       setTimeout(() => outRef.current?.focus(), 0);
     } catch (e) {
       if ((e as Error).name !== "AbortError") setRes({ status: "llm_error", message: "The noun finder tripped." });
@@ -67,21 +71,28 @@ export default function Page() {
   }
   async function copy() {
     if (!output) return;
-    try { await navigator.clipboard.writeText(output.text); setCopied("Copied."); }
+    try { await navigator.clipboard.writeText(output.text); setCopied("Copied."); setCrowd((c) => c + 1); }
     catch { const el = outRef.current; if (el) { const rg = document.createRange(); rg.selectNodeContents(el); const s = getSelection(); s?.removeAllRanges(); s?.addRange(rg); } setCopied("Press Ctrl+C"); }
   }
 
   const country = (c: string) => cities.filter((x) => x.country === c);
 
   return (
-    <main>
-      <header><h1>Townie<span>.</span> Talk like you grew up here.</h1><p>Swap one reference in your joke for the one the room actually knows.</p></header>
+    <main className={`club${typing ? " typing" : ""}${loading ? " tense" : ""}${res?.status === "ok" ? " lit" : ""}`} style={{ ["--energy" as string]: Math.min(joke.length / 300, 1) }}>
+      <div className="haze" aria-hidden="true" />
+      <header className="marquee">
+        <p className="bulbs" aria-hidden="true" />
+        <h1><span className="neon">Townie</span><span className="sub">Talk like you grew up here.</span></h1>
+        <p className="tonight" aria-hidden="true"><span>Tonight</span> <strong key={cityObj?.name ?? "x"}>{cityObj?.name ?? (city.trim() || "your town")}</strong></p>
+        <p className="tagline">Swap one reference in your joke for the one the room actually knows.</p>
+      </header>
 
-      <section className="card" aria-label="Your joke and city">
+      <section className="card mic" aria-label="Your joke and city">
         <label htmlFor="joke">Your joke</label>
         <p className="help" id="joke-help">Townie changes one noun. Your words stay yours.</p>
         <textarea id="joke" aria-describedby="joke-help" value={joke} maxLength={1200}
-          onChange={(e) => setJoke(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) run(); }} />
+          onChange={(e) => { setJoke(e.target.value); pulse(); }} onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) run(); }} />
+        <div className="hum" aria-hidden="true"><span /></div>
         {tooLong && <p className="err" role="alert">Keep it under 600 characters ({joke.length} now).</p>}
         <div className="chips" aria-label="Example jokes">Try:
           {EXAMPLES.map((x) => <button key={x.label} type="button" onClick={() => setJoke(x.joke)}>{x.label}</button>)}
@@ -90,13 +101,13 @@ export default function Page() {
           <div className="grow">
             <label htmlFor="city">Tonight&apos;s city</label>
             <input id="city" type="text" list="city-list" role="combobox" aria-autocomplete="list" autoComplete="off" value={city} placeholder="Type to filter, for example Austin"
-              onChange={(e) => setCity(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") run(); }} aria-describedby="city-note" />
+              onChange={(e) => { setCity(e.target.value); pulse(); }} onKeyDown={(e) => { if (e.key === "Enter") run(); }} aria-describedby="city-note" />
             <datalist id="city-list">
               {["United States", "India"].flatMap((c) => country(c).map((x) => <option key={x.name} value={x.name}>{`${c}${x.note ? " · " + x.note : ""}`}</option>))}
             </datalist>
             <p className="note" id="city-note">{cityObj?.note ?? " "}</p>
           </div>
-          <button className="primary" disabled={!canRun} onClick={() => run()}>Townie it</button>
+          <button className="primary" disabled={!canRun} onClick={() => run()}><span aria-hidden="true">🎤 </span>Townie it</button>
           {loading && <button onClick={() => abortRef.current?.abort()}>Cancel</button>}
         </div>
       </section>
@@ -111,15 +122,17 @@ export default function Page() {
           </div>
         )}
         {!loading && res?.status === "ok" && output && slot && (
-          <div className="card">
+          <div className="card stage">
+            <div className="spot" aria-hidden="true" />
+            {crowd > 0 && <div className="crowd" key={crowd} aria-hidden="true"><span>ha</span><span>HA</span><span>ooh</span><span>ha!</span><span>👏</span></div>}
             <p className="joke" ref={outRef} tabIndex={-1} aria-label={`Result: ${output.text}`}>
-              {output.before}<span className="swap">{output.name}</span>{output.after}
+              {output.before}<span className="swapwrap"><span className="old" aria-hidden="true">{slot.text}</span><span className="swap" key={output.name}>{output.name}</span></span>{output.after}
             </p>
             {res.punchHint && <p className="banner warn">This name sits far from your punchline. The swap adds recognition, maybe not the laugh. Try it closer to the punch.</p>}
             {!res.selectedId && res.picks && res.picks.length > 0 && <p className="banner warn">{res.onlyShared ? `Only shared picks for ${res.city}. Your call.` : "No pick is pre-selected. Your call."}</p>}
             {res.fewer && <p className="note">Only {res.picks?.length ?? 0} pick{res.picks?.length === 1 ? "" : "s"} cleared the bar for {res.city}. <button onClick={() => run({ loosen: true })}>Loosen popularity floor</button></p>}
 
-            <fieldset style={{ border: 0, padding: 0, margin: "12px 0 0" }}>
+            <fieldset className="setlist">
               <legend><strong>Picks for &quot;{slot.text}&quot; ({slot.role})</strong></legend>
               <ul className="picks">
                 {res.picks?.map((p) => (
@@ -145,7 +158,7 @@ export default function Page() {
               <label style={{ display: "flex", gap: 8, alignItems: "center", fontWeight: 400, minHeight: 44 }}>
                 <input type="checkbox" checked={plainOn} onChange={(e) => togglePlain(e.target.checked)} style={{ width: 20, height: 20 }} /> Without Qloo
               </label>
-              <button onClick={copy}>Copy joke</button>
+              <button className="primary" onClick={copy}>Copy joke</button>
               <span role="status" className="note">{copied}</span>
               {res.slots && res.slots.length > 1 && <SlotMenu res={res} onPick={(i) => run({ slotIndex: i })} />}
             </div>
