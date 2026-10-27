@@ -1,7 +1,7 @@
 // Server-side store. Uses Upstash Redis (Vercel Marketplace free tier) when its REST env vars exist,
 // otherwise an in-memory map (fine for local dev; on Vercel each instance keeps its own copy).
-const URL_ = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL;
-const TOKEN = process.env.KV_REST_API_TOKEN ?? process.env.UPSTASH_REDIS_REST_TOKEN;
+const URL_ = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+const TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
 const mem = new Map<string, { v: string; exp: number }>();
 
 async function redis(cmd: (string | number)[]): Promise<unknown> {
