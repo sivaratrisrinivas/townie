@@ -29,13 +29,14 @@ if (!KEY) {
 }
 
 let calls = 0;
+let okCalls = 0;
 async function q(params) {
   const url = BASE + "?" + new URLSearchParams({ take: "50", ...params }).toString();
   for (let attempt = 0; attempt < 3; attempt++) {
     calls++;
     try {
       const r = await fetch(url, { headers: { "X-Api-Key": KEY }, signal: AbortSignal.timeout(40000) });
-      if (r.ok) return await r.json();
+      if (r.ok) { okCalls++; return await r.json(); }
       console.log(`[packs] HTTP ${r.status} for ${params["signal.location.query"]} ${params["filter.type"]}`);
     } catch (e) {
       console.log(`[packs] fetch error: ${e.name}`);
@@ -98,6 +99,10 @@ for (const city of RESTAURANT_CITIES) tasks.push(async () => {
   packs[city].lists.restaurant = (j?.results?.entities ?? []).map(slim);
 });
 await pool(tasks);
+if (okCalls < tasks.length * 0.8) {
+  console.log(`[packs] only ${okCalls} of ${tasks.length} Qloo calls succeeded; not writing packs (check QLOO_API_KEY).`);
+  process.exit(0);
+}
 
 fs.mkdirSync(OUT, { recursive: true });
 for (const cat of [...Object.keys(CATS), "grocery"]) for (const country of ["United States", "India"]) {
