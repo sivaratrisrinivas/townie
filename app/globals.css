@@ -36,7 +36,7 @@ button:disabled { opacity:.5; cursor:not-allowed; }
 @media (max-width: 600px) { .compare { grid-template-columns: 1fr; } header h1 { font-size:1.6rem; } }
 .compare h3 { margin:0 0 4px; font-size:.95rem; }
 footer { color:var(--muted); font-size:.85rem; margin-top:24px; }
-footer a { color:inherit; }
+footer a { color:inherit; display:inline-block; min-height:44px; line-height:44px; padding:0 4px; }
 .sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }
 .skel { color:var(--muted); }
 details summary { cursor:pointer; min-height:44px; display:flex; align-items:center; }
