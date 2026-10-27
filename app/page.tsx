@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { cityStatus } from "@/lib/cityCheck";
 import { Comic, CityMap, Waveform, Crowd } from "./art";
 
 type Pick = { id: string; name: string; list: string; cityRank: number; nationalRank: number | null; lift: number | null; popularity: number | null; syllables: number; score: number; shared: boolean; postcard: boolean; rising: boolean; warning: string | null; warningReason: string | null; evidence: string; labels: string[]; tagNames: string[] };
@@ -18,6 +19,7 @@ export default function Page() {
   const [joke, setJoke] = useState("");
   const [city, setCity] = useState("");
   const [cities, setCities] = useState<City[]>([]);
+  const [citiesLoaded, setCitiesLoaded] = useState(false);
   const [res, setRes] = useState<Res | null>(null);
   const [sel, setSel] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -29,10 +31,11 @@ export default function Page() {
   const outRef = useRef<HTMLParagraphElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  useEffect(() => { fetch("/api/cities").then((r) => r.json()).then(setCities).catch(() => {}); }, []);
+  useEffect(() => { fetch("/api/cities").then((r) => r.json()).then((c) => setCities(Array.isArray(c) ? c : [])).catch(() => {}).finally(() => setCitiesLoaded(true)); }, []);
   const cityObj = cities.find((c) => c.name.toLowerCase() === city.trim().toLowerCase());
   const tooLong = joke.length > 600;
-  const canRun = joke.trim().length > 0 && !tooLong && city.trim().length > 0 && !loading;
+  const cityState = cityStatus(city, cities, citiesLoaded);
+  const canRun = joke.trim().length > 0 && !tooLong && cityState === "ok" && !loading;
 
   async function run(extra: Record<string, unknown> = {}) {
     if (!canRun && extra.slotIndex === undefined && !extra.loosen) return;
@@ -93,7 +96,7 @@ export default function Page() {
   useEffect(() => { headRef.current?.focus(); }, [shown]);
   useEffect(() => { if (res?.status === "ok" && !loading && screen === "city") go("reveal"); }, [res, loading]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const unknownCity = city.trim().length > 1 && cities.length > 0 && !cityObj && !cities.some((c) => c.name.toLowerCase().startsWith(city.trim().toLowerCase()));
+  const unknownCity = cityState === "unknown";
   const nextPick = () => {
     const ps = res?.picks ?? []; if (ps.length < 2) return;
     const i = ps.findIndex((p) => p.id === sel); setSel(ps[(i + 1) % ps.length].id); setCopied(""); setPlainOn(false); setPlain(null);
@@ -157,6 +160,7 @@ export default function Page() {
                   {(res.status === "no_slot" || res.status === "category_not_covered") && <button className="link" onClick={() => history.back()}>Change the joke</button>}
                 </div>)
               : unknownCity ? <p className="note">Not covered yet. Try one of: {cities.map((c) => c.name).join(", ")}.</p>
+              : cityState === "loading" ? <p className="note">Checking the city list...</p>
               : <p className="note">{cityObj?.note ?? "14 cities in the US and India."}</p>}
           </div>
           <div className="row">
