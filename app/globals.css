@@ -6,14 +6,15 @@
 }
 * { box-sizing:border-box; }
 html { background:var(--night); }
-body { margin:0; color:var(--smoke); font-family:var(--f-type), ui-monospace, "Courier New", monospace; line-height:1.55; overflow-x:hidden;
+body { margin:0; color:var(--smoke); font-family:var(--f-type), ui-monospace, "Courier New", monospace; line-height:1.55; overflow-x:hidden; min-height:100vh; background:var(--night); }
+/* The wall is pinned to the viewport with a fixed layer, not background-attachment, so it never bands or tears on long pages. */
+body::before { content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
   background:
     radial-gradient(ellipse 60% 45% at 50% 0%, rgb(var(--spot) / .10), transparent 70%),
     repeating-linear-gradient(0deg, transparent 0 27px, #0003 27px 30px),
     repeating-linear-gradient(90deg, transparent 0 58px, #0002 58px 61px),
-    linear-gradient(180deg, var(--brick) 0%, var(--brick2) 60%, var(--night) 100%);
-  background-attachment: fixed; min-height:100vh; }
-main.club { position:relative; max-width:860px; margin:0 auto; padding:20px 16px 72px; }
+    linear-gradient(180deg, var(--brick) 0%, var(--brick2) 60%, var(--night) 100%); }
+main.club { position:relative; max-width:720px; margin:0 auto; padding:20px 16px 72px; }
 
 /* Haze that breathes, and breathes harder as the joke gets longer. */
 .haze { position:fixed; inset:-20%; pointer-events:none; z-index:0;
@@ -152,3 +153,43 @@ details summary { cursor:pointer; min-height:44px; display:flex; align-items:cen
   *, *::before, *::after { animation:none !important; transition:none !important; }
   .old, .crowd { display:none; }
 }
+
+/* Step flow */
+.marquee.small { padding:16px 12px 12px; margin-bottom:12px; }
+.marquee.small .neon { font-size:clamp(2.4rem, 10vw, 3.6rem); }
+.marquee.small .sub { font-size:1rem; }
+.marquee.small .tonight { margin:8px 0 0; font-size:1.2rem; }
+.brand { margin:0; }
+.progress { display:flex; justify-content:space-between; align-items:center; margin:0 0 12px; min-height:44px; }
+.steps { display:flex; gap:6px; align-items:center; color:var(--dim); }
+.steps i { width:26px; height:4px; border-radius:2px; background:#ffffff26; transition:background .4s; }
+.steps i.on { background:var(--amber); box-shadow:0 0 8px var(--amber); }
+.steps b { font-weight:400; margin-left:6px; font-size:.9rem; }
+button.back { border-color:transparent; background:none; padding-left:4px; color:var(--dim); }
+.screen { padding:28px 22px; animation: enter .45s cubic-bezier(.2,1,.3,1); }
+@keyframes enter { from { opacity:0; transform:translateY(14px); } }
+.screen h1 { margin:0 0 6px; font-family:var(--f-marquee), Impact, sans-serif; font-weight:400; letter-spacing:.04em; font-size:clamp(2rem, 8vw, 2.8rem); line-height:1.05; color:#fff; }
+.screen h1:focus { outline:none; }
+.screen h1:focus-visible { outline:none; text-decoration:underline 2px var(--amber); text-underline-offset:6px; }
+.screen h1.kicker { position:relative; text-align:center; font-size:clamp(1.2rem, 5vw, 1.5rem); color:var(--dim); letter-spacing:.14em; text-transform:uppercase; }
+button.big { width:100%; min-height:56px; font-size:1.1rem; margin-top:16px; }
+.center { position:relative; text-align:center; }
+.center button.big { max-width:340px; }
+button.link { background:none; border:0; color:var(--dim); text-decoration:underline; text-underline-offset:4px; padding:8px 12px; }
+button.link:hover { color:var(--amber); background:none; }
+.quietlinks { display:flex; justify-content:center; flex-wrap:wrap; gap:4px; margin:4px 0 0; }
+details.quiet { margin-top:14px; color:var(--dim); }
+details.quiet summary { font-family:inherit; color:var(--dim); font-size:.9rem; }
+.screen input[type=text] { font-size:1.3rem; min-height:56px; margin-top:12px; }
+.screen textarea { margin-top:10px; min-height:160px; font-size:1.15rem; }
+.hushline { font-family:var(--f-marker), cursive; color:var(--amber); font-size:1.2rem; animation: hush 1.4s ease-in-out infinite; }
+#city-note { min-height:3em; margin-top:8px; }
+#city-note .banner p { margin:0 0 6px; }
+.lead { font-size:1rem; color:var(--smoke); }
+label.check { display:flex; gap:10px; align-items:center; font-weight:400; min-height:44px; margin:10px 0; cursor:pointer; }
+label.check input { width:22px; height:22px; accent-color:var(--amber); }
+.compare h2 { margin:0 0 4px; font-family:var(--f-marquee), Impact, sans-serif; font-weight:400; letter-spacing:.1em; font-size:1.15rem; color:var(--amber); }
+.compare > div:last-child h2 { color:var(--dim); }
+.stage .joke { margin:18px 0 22px; }
+@media (max-width:600px) { .screen { padding:22px 16px; } }
+.marquee.small { padding-bottom:22px; } .marquee.small .sub { margin-top:2px; }
