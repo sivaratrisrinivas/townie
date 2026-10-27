@@ -167,13 +167,18 @@ export function rerankSlot(joke: string, city: CityDef, slots: FoundSlot[], idx:
 
 /** Without Qloo: one plain Haiku call for the same slot. Code stitches, so only the name changes. */
 export async function plainSwap(joke: string, city: CityDef, slot: FoundSlot, llm: LlmFn): Promise<{ name: string; output: string }> {
+  // A forced tool keeps the answer to a bare name; free text sometimes came back as musing.
   const reply = await llm({
-    system: "You localise one reference in a joke for a comedian. Reply with only the replacement name, nothing else.",
-    messages: [{ role: "user", content: `City: ${city.name}\nJoke: ${joke}\nReplace "${slot.text}" (${slot.role}) with what a local in ${city.name} would say. Reply with the name only.` }],
-    maxTokens: 600, // the model thinks before answering; 30 tokens ran out before any text
+    system: "You localise one reference in a joke for a comedian. Give only the replacement name.",
+    messages: [{ role: "user", content: `City: ${city.name}\nJoke: ${joke}\nReplace "${slot.text}" (${slot.role}) with what a local in ${city.name} would say.` }],
+    tools: [{ name: "give_name", description: "The replacement name only, 1 to 6 words.", input_schema: { type: "object", properties: { name: { type: "string" } }, required: ["name"] } }],
+    toolChoice: "give_name",
+    maxTokens: 600, // the model thinks before answering
   });
+  const use = reply.content.find((b) => b.type === "tool_use");
   const t = reply.content.find((b) => b.type === "text");
-  const name = (t && t.type === "text" ? t.text : "").trim().split("\n")[0].replace(/^["'“]+|["'”.]+$/g, "").slice(0, 60);
-  if (!name) throw new Error("bad llm output");
+  const raw = use && use.type === "tool_use" ? String(use.input.name ?? "") : t && t.type === "text" ? t.text : "";
+  const name = raw.trim().split("\n")[0].replace(/^["'“]+|["'”.]+$/g, "");
+  if (!name || name.length > 60 || name.split(/\s+/).length > 8 || /\?/.test(name)) throw new Error("bad llm output");
   return { name, output: stitch(joke, slot.start, slot.end, name) };
 }
