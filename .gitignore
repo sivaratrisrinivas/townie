@@ -1,0 +1,14 @@
+node_modules/
+.next/
+out/
+.vercel/
+.env*
+*.log
+# Qloo response data must never be committed (Qloo hackathon terms)
+data/packs/
+data/cache/
+coverage/
+*.qloo.json
+qloo-*.json
+shot.png
+*.tsbuildinfo
