@@ -44,7 +44,6 @@ export default function Page() {
       const r = await fetch("/api/townie", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ joke, city, ...extra }), signal: ac.signal });
       const j = (await r.json()) as Res;
       setRes(j); setSel(j.selectedId ?? null);
-      setTimeout(() => outRef.current?.focus(), 0);
     } catch (e) {
       if ((e as Error).name !== "AbortError") setRes({ status: "llm_error", message: "The noun finder tripped." });
     } finally { clearInterval(t1); clearTimeout(t2); setLoading(false); }
@@ -73,102 +72,156 @@ export default function Page() {
 
   const country = (c: string) => cities.filter((x) => x.country === c);
 
+  // Step flow with real browser history: ?s=joke|city|reveal|why
+  type Step = "joke" | "city" | "reveal" | "why";
+  const [screen, setScreen] = useState<Step>("joke");
+  const headRef = useRef<HTMLHeadingElement>(null);
+  const go = (s: Step, replace = false) => {
+    setScreen(s);
+    const url = `?s=${s}`;
+    if (replace) history.replaceState({ s }, "", url); else history.pushState({ s }, "", url);
+  };
+  useEffect(() => {
+    history.replaceState({ s: "joke" }, "", "?s=joke");
+    const onPop = (e: PopStateEvent) => setScreen(((e.state?.s as Step) ?? "joke"));
+    addEventListener("popstate", onPop);
+    return () => removeEventListener("popstate", onPop);
+  }, []);
+  // Guard: a screen that needs data we don't have falls back to the first one that makes sense.
+  const shown: Step = (screen === "reveal" || screen === "why") && !(res?.status === "ok" && output) ? (joke.trim() ? "city" : "joke") : screen === "city" && !joke.trim() ? "joke" : screen;
+  useEffect(() => { headRef.current?.focus(); }, [shown]);
+  useEffect(() => { if (res?.status === "ok" && !loading && screen === "city") go("reveal"); }, [res, loading]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const unknownCity = city.trim().length > 1 && cities.length > 0 && !cityObj && !cities.some((c) => c.name.toLowerCase().startsWith(city.trim().toLowerCase()));
+  const nextPick = () => {
+    const ps = res?.picks ?? []; if (ps.length < 2) return;
+    const i = ps.findIndex((p) => p.id === sel); setSel(ps[(i + 1) % ps.length].id); setCopied(""); setPlainOn(false); setPlain(null);
+  };
+  const stepNo = { joke: 1, city: 2, reveal: 3, why: 3 }[shown];
+
   return (
     <main>
-      <header><h1>Townie<span>.</span> Talk like you grew up here.</h1><p>Swap one reference in your joke for the one the room actually knows.</p></header>
+      <header className="brand"><span className="word">Townie</span> <span className="promise">Talk like you grew up here.</span></header>
 
-      <section className="card" aria-label="Your joke and city">
-        <label htmlFor="joke">Your joke</label>
-        <p className="help" id="joke-help">Townie changes one noun. Your words stay yours.</p>
-        <textarea id="joke" aria-describedby="joke-help" value={joke} maxLength={1200}
-          onChange={(e) => setJoke(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) run(); }} />
-        {tooLong && <p className="err" role="alert">Keep it under 600 characters ({joke.length} now).</p>}
-        <div className="chips" aria-label="Example jokes">Try:
-          {EXAMPLES.map((x) => <button key={x.label} type="button" onClick={() => setJoke(x.joke)}>{x.label}</button>)}
-        </div>
-        <div className="row">
-          <div className="grow">
-            <label htmlFor="city">Tonight&apos;s city</label>
-            <input id="city" type="text" list="city-list" role="combobox" aria-autocomplete="list" autoComplete="off" value={city} placeholder="Type to filter, for example Austin"
-              onChange={(e) => setCity(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") run(); }} aria-describedby="city-note" />
-            <datalist id="city-list">
-              {["United States", "India"].flatMap((c) => country(c).map((x) => <option key={x.name} value={x.name}>{`${c}${x.note ? " · " + x.note : ""}`}</option>))}
-            </datalist>
-            <p className="note" id="city-note">{cityObj?.note ?? " "}</p>
-          </div>
-          <button className="primary" disabled={!canRun} onClick={() => run()}>Townie it</button>
-          {loading && <button onClick={() => abortRef.current?.abort()}>Cancel</button>}
-        </div>
-      </section>
+      <nav className="progress" aria-label="Progress">
+        {shown !== "joke" ? <button className="back" onClick={() => history.back()}><span aria-hidden="true">← </span>Back</button> : <span />}
+        <span>Step {stepNo} of 3</span>
+      </nav>
 
-      <section aria-live="polite" aria-busy={loading}>
-        {loading && <div className="card skel" role="status">{STEPS(city)[step]}...{slow && " Taking longer than usual."}</div>}
-        {!loading && res && res.status !== "ok" && (
-          <div className="card" role="alert">
-            <p>{res.status === "no_slot" ? "No local reference to swap here. Townie works on a named thing, like a store, chain or show." : res.message}</p>
-            {(res.status === "category_not_covered" || res.status === "qloo_empty") && res.slots && res.slots.length > 1 && <SlotMenu res={res} onPick={(i) => run({ slotIndex: i })} />}
-            {(res.status === "llm_error" || res.status === "qloo_error") && <button onClick={() => run()}>Retry</button>}
+      {shown === "joke" && (
+        <section className="card screen" aria-labelledby="h-joke">
+          <h1 id="h-joke" ref={headRef} tabIndex={-1}>Paste your joke</h1>
+          <p className="help" id="joke-help">Townie swaps one named thing for the one tonight&apos;s room knows. Your words stay yours.</p>
+          <label htmlFor="joke" className="sr">Your joke</label>
+          <textarea id="joke" aria-describedby="joke-help" value={joke} maxLength={1200} placeholder="My dad thinks Olive Garden is fine dining..."
+            onChange={(e) => setJoke(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && joke.trim() && !tooLong) { e.preventDefault(); go("city"); } }} />
+          {tooLong && <p className="err" role="alert">Keep it under 600 characters ({joke.length} now).</p>}
+          <button className="primary big" disabled={!joke.trim() || tooLong} onClick={() => go("city")}>Next: pick the room</button>
+          <details className="quiet"><summary>Need a joke to try?</summary>
+            <div className="chips">{EXAMPLES.map((x) => <button key={x.label} type="button" onClick={() => setJoke(x.joke)}>{x.label}</button>)}</div>
+          </details>
+        </section>
+      )}
+
+      {shown === "city" && (
+        <section className="card screen" aria-labelledby="h-city" aria-busy={loading}>
+          <h1 id="h-city" ref={headRef} tabIndex={-1}>Where are you playing tonight?</h1>
+          <label htmlFor="city" className="sr">City</label>
+          <input id="city" type="text" list="city-list" role="combobox" aria-autocomplete="list" autoComplete="off" value={city} placeholder="Austin, Hyderabad, Mumbai..."
+            onChange={(e) => { setCity(e.target.value); if (res) setRes(null); }} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); run(); } }} aria-describedby="city-note" disabled={loading} />
+          <datalist id="city-list">
+            {["United States", "India"].flatMap((c) => country(c).map((x) => <option key={x.name} value={x.name}>{`${c}${x.note ? " · " + x.note : ""}`}</option>))}
+          </datalist>
+          <div aria-live="polite" id="city-note">
+            {loading ? <p className="hushline" role="status">{STEPS(city)[step]}...{slow && " Taking longer than usual."}</p>
+              : res && res.status !== "ok" ? (
+                <div className="banner warn" role="alert">
+                  <p>{res.status === "no_slot" ? "No local reference to swap here. Townie works on a named thing, like a store, chain or show." : res.message}</p>
+                  {(res.status === "category_not_covered" || res.status === "qloo_empty") && res.slots && res.slots.length > 1 && <SlotMenu res={res} onPick={(i) => run({ slotIndex: i })} />}
+                  {(res.status === "llm_error" || res.status === "qloo_error") && <button onClick={() => run()}>Retry</button>}
+                  {(res.status === "no_slot" || res.status === "category_not_covered") && <button className="link" onClick={() => history.back()}>Change the joke</button>}
+                </div>)
+              : unknownCity ? <p className="note">Not covered yet. Try one of: {cities.map((c) => c.name).join(", ")}.</p>
+              : <p className="note">{cityObj?.note ?? "14 cities in the US and India."}</p>}
           </div>
-        )}
-        {!loading && res?.status === "ok" && output && slot && (
-          <div className="card">
-            <p className="joke" ref={outRef} tabIndex={-1} aria-label={`Result: ${output.text}`}>
-              {output.before}<span className="swap">{output.name}</span>{output.after}
+          <div className="row">
+            <button className="primary big" disabled={!canRun || unknownCity} onClick={() => run()}>Townie it</button>
+            {loading && <button onClick={() => abortRef.current?.abort()}>Cancel</button>}
+          </div>
+        </section>
+      )}
+
+      {shown === "reveal" && res?.status === "ok" && output && slot && (
+        <section className="card stage screen" aria-labelledby="h-reveal">
+          <div className="spot" aria-hidden="true" />
+          <h1 id="h-reveal" ref={headRef} tabIndex={-1} className="kicker">Tonight in {res.city}, say it like this</h1>
+          <p className="joke" ref={outRef} aria-live="polite" aria-label={`Result: ${output.text}`}>
+            {output.before}<span className="swapwrap" key={output.name}><span className="old" aria-hidden="true">{slot.text}</span><span className="swap">{output.name}</span></span>{output.after}
+          </p>
+          {res.punchHint && <p className="banner warn">This name sits far from your punchline. It adds recognition, maybe not the laugh.</p>}
+          {!res.selectedId && <p className="banner warn">{res.onlyShared ? `Only shared picks for ${res.city}. Your call.` : "No pick is pre-selected. Your call."}</p>}
+          {chosen?.warning && <p className="banner warn">Heads up: this touches {chosen.warning}. Your call.</p>}
+          <div className="center">
+            <button className="primary big" onClick={copy}>Copy joke</button>
+            <p role="status" className="note">{copied}</p>
+            <p className="quietlinks">
+              {(res.picks?.length ?? 0) > 1 && <button className="link" onClick={nextPick}>Try another pick</button>}
+              <button className="link" onClick={() => go("why")}>Why this?</button>
+              <button className="link" onClick={() => { setRes(null); setJoke(""); go("joke"); }}>New joke</button>
             </p>
-            {res.punchHint && <p className="banner warn">This name sits far from your punchline. The swap adds recognition, maybe not the laugh. Try it closer to the punch.</p>}
-            {!res.selectedId && res.picks && res.picks.length > 0 && <p className="banner warn">{res.onlyShared ? `Only shared picks for ${res.city}. Your call.` : "No pick is pre-selected. Your call."}</p>}
-            {res.fewer && <p className="note">Only {res.picks?.length ?? 0} pick{res.picks?.length === 1 ? "" : "s"} cleared the bar for {res.city}. <button onClick={() => run({ loosen: true })}>Loosen popularity floor</button></p>}
-
-            <fieldset style={{ border: 0, padding: 0, margin: "12px 0 0" }}>
-              <legend><strong>Picks for &quot;{slot.text}&quot; ({slot.role})</strong></legend>
-              <ul className="picks">
-                {res.picks?.map((p) => (
-                  <li key={p.id} className={p.id === sel ? "on" : ""}>
-                    <label>
-                      <input type="radio" name="pick" checked={p.id === sel} onChange={() => setSel(p.id)} />
-                      <span>
-                        <span className="pname">{p.name}</span>{" "}
-                        <span className="ev">{p.evidence}{p.lift !== null && ` Lift ${p.lift >= 0 ? "+" : ""}${p.lift} ranks.`}{p.popularity !== null ? ` Popularity ${p.popularity.toFixed(2)}.` : " Popularity not returned."} {p.syllables} syl.</span>
-                        <br />
-                        {p.warning && <span className="tag warn">Heads up: this touches {p.warning}. Your call.{p.warningReason ? ` (${p.warningReason})` : ""}</span>}
-                        {p.labels.map((l) => <span key={l} className="tag warn">{l}</span>)}
-                        {p.tagNames.slice(0, 3).map((t, i) => <span key={t + i} className="tag">{t}</span>)}
-                      </span>
-                    </label>
-                  </li>
-                ))}
-              </ul>
-            </fieldset>
-            {chosen && <p className="ev">Why {chosen.name}: {chosen.evidence} Same role: {slot.role}. {chosen.syllables} syllables. Source: Qloo Insights, {chosen.list === "tv" ? "TV show" : chosen.list === "restaurant" ? "place" : "brand"}.{res.locality ? ` Matched: ${res.locality}.` : ""}{res.cached ? " Cached." : ""}</p>}
-
-            <div className="row">
-              <label style={{ display: "flex", gap: 8, alignItems: "center", fontWeight: 400, minHeight: 44 }}>
-                <input type="checkbox" checked={plainOn} onChange={(e) => togglePlain(e.target.checked)} style={{ width: 20, height: 20 }} /> Without Qloo
-              </label>
-              <button onClick={copy}>Copy joke</button>
-              <span role="status" className="note">{copied}</span>
-              {res.slots && res.slots.length > 1 && <SlotMenu res={res} onPick={(i) => run({ slotIndex: i })} />}
-            </div>
-            {plainOn && (
-              <div aria-live="polite">
-                <p className="banner">Plain AI, no local data. Compare.</p>
-                {!plain ? <p className="skel">Loading the plain version...</p> : plain.status === "ok" ? (
-                  <div className="compare">
-                    <div><h3>With Qloo</h3><p>{output.text}</p></div>
-                    <div><h3>Without Qloo</h3><p>{plain.output}</p></div>
-                  </div>
-                ) : <p>{plain.message ?? "Couldn't load the plain version."} <button onClick={() => { setPlain(null); togglePlain(true); }}>Retry</button></p>}
-              </div>
-            )}
           </div>
-        )}
-      </section>
+        </section>
+      )}
 
-      <footer>
-        <details><summary>How Townie picks</summary>
+      {shown === "why" && res?.status === "ok" && output && slot && (
+        <section className="card screen" aria-labelledby="h-why">
+          <h1 id="h-why" ref={headRef} tabIndex={-1}>Why {chosen?.name ?? "this"}?</h1>
+          {chosen && <p className="ev lead">{chosen.evidence} Same role: {slot.role}. {chosen.syllables} syllables. Source: Qloo Insights, {chosen.list === "tv" ? "TV show" : chosen.list === "restaurant" ? "place" : "brand"}.{res.locality ? ` Matched: ${res.locality}.` : ""}{res.cached ? " Cached." : ""}</p>}
+          {res.fewer && <p className="note">Only {res.picks?.length ?? 0} pick{res.picks?.length === 1 ? "" : "s"} cleared the bar for {res.city}. <button className="link" onClick={() => run({ loosen: true })}>Loosen popularity floor</button></p>}
+          <fieldset className="setlist">
+            <legend><strong>Set list for &quot;{slot.text}&quot; ({slot.role})</strong></legend>
+            <ul className="picks">
+              {res.picks?.map((p) => (
+                <li key={p.id} className={p.id === sel ? "on" : ""}>
+                  <label>
+                    <input type="radio" name="pick" checked={p.id === sel} onChange={() => setSel(p.id)} />
+                    <span>
+                      <span className="pname">{p.name}</span>{" "}
+                      <span className="ev">{p.evidence}{p.lift !== null && ` Lift ${p.lift >= 0 ? "+" : ""}${p.lift} ranks.`}{p.popularity !== null && ` Popularity ${p.popularity.toFixed(2)}.`}</span>
+                      <br />
+                      {p.warning && <span className="tag warn">Heads up: this touches {p.warning}. Your call.{p.warningReason ? ` (${p.warningReason})` : ""}</span>}
+                      {p.labels.map((l) => <span key={l} className="tag warn">{l}</span>)}
+                      {[...new Set(p.tagNames)].slice(0, 2).map((t, i) => <span key={t + i} className="tag">{t}</span>)}
+                    </span>
+                  </label>
+                </li>
+              ))}
+            </ul>
+          </fieldset>
+          <label className="check">
+            <input type="checkbox" checked={plainOn} onChange={(e) => togglePlain(e.target.checked)} /> Compare: Without Qloo
+          </label>
+          {plainOn && (
+            <div aria-live="polite">
+              {!plain ? <p className="skel">Loading the plain version...</p> : plain.status === "ok" ? (
+                <div className="compare">
+                  <div><h2>With Qloo</h2><p>{output.text}</p></div>
+                  <div><h2>Without Qloo</h2><p>{plain.output}</p><p className="note">Plain AI, no local data.</p></div>
+                </div>
+              ) : <p>{plain.message ?? "Couldn't load the plain version."} <button onClick={() => { setPlain(null); togglePlain(true); }}>Retry</button></p>}
+            </div>
+          )}
+          {res.slots && res.slots.length > 1 && <SlotMenu res={res} onPick={(i) => { go("city", true); run({ slotIndex: i }); }} />}
+          <details className="how"><summary>How Townie picks</summary>
           <p>An AI finds the one named thing your joke leans on and its role. Code then ranks local options from Qloo taste data: popular in this city (30%), more popular here than in the country (30%), similar syllables (15%), similar ending sound (10%), not the obvious postcard pick (10%), short and sayable (5%). Brands popular across most cities in the country, tourist landmarks and fast-rising fads are labelled and never pre-selected. Religion, caste and politics get a warning; you choose.</p>
         </details>
-        <p>Powered by <a href="https://www.qloo.com" target="_blank" rel="noreferrer">Qloo</a> taste data. Taste data only, no demographics. Jokes are cached on our server so repeat runs are free. They are never shown to anyone else. <a href="https://github.com/sivaratrisrinivas/townie" target="_blank" rel="noreferrer">Source on GitHub</a> (MIT).</p>
+          <div className="center"><button className="primary big" onClick={() => history.back()}>Back to the stage</button></div>
+        </section>
+      )}
+
+      <footer>
+        <p>Local picks from <a href="https://www.qloo.com" target="_blank" rel="noreferrer">Qloo</a> taste data. Your jokes are never shown to anyone. <a href="https://github.com/sivaratrisrinivas/townie" target="_blank" rel="noreferrer">Source</a> (MIT)</p>
       </footer>
     </main>
   );
