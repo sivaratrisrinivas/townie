@@ -61,7 +61,7 @@ export default function Page() {
   async function togglePlain(on: boolean) {
     setPlainOn(on);
     if (on && !plain) {
-      const r = await fetch("/api/plain", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ joke, city, slotIndex: res?.slotIndex }) });
+      const r = await fetch("/api/plain", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ joke, city, slotIndex: res?.slotIndex, slot: slot ? { text: slot.text, role: slot.role, start: slot.start, end: slot.end } : undefined }) });
       setPlain(await r.json().catch(() => ({ status: "error", message: "Couldn't load the plain version." })));
     }
   }
