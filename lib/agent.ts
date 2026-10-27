@@ -170,7 +170,7 @@ export async function plainSwap(joke: string, city: CityDef, slot: FoundSlot, ll
   const reply = await llm({
     system: "You localise one reference in a joke for a comedian. Reply with only the replacement name, nothing else.",
     messages: [{ role: "user", content: `City: ${city.name}\nJoke: ${joke}\nReplace "${slot.text}" (${slot.role}) with what a local in ${city.name} would say. Reply with the name only.` }],
-    maxTokens: 30,
+    maxTokens: 600, // the model thinks before answering; 30 tokens ran out before any text
   });
   const t = reply.content.find((b) => b.type === "text");
   const name = (t && t.type === "text" ? t.text : "").trim().split("\n")[0].replace(/^["'“]+|["'”.]+$/g, "").slice(0, 60);
