@@ -12,3 +12,4 @@ coverage/
 qloo-*.json
 shot.png
 *.tsbuildinfo
+live-result.png
