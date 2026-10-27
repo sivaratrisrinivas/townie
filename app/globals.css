@@ -111,11 +111,6 @@ textarea.typing:focus { box-shadow:0 0 0 2px #2430D633; }
 /* Each hint or warning on the city step rises in, so a change is noticed. */
 #city-note > * { animation: rise .26s var(--ease) both; }
 @keyframes rise { from { transform:translateY(6px); opacity:0; } }
-/* While Qloo is fetched, a small blue slug sweeps back and forth: searching. */
-.hushline { display:flex; align-items:center; gap:10px; }
-.seek { flex:none; width:36px; height:6px; border-radius:3px; background:#2430D61A; overflow:hidden; position:relative; }
-.seek::after { content:""; position:absolute; inset:0; width:14px; border-radius:3px; background:var(--blue); animation: seek .9s cubic-bezier(.6,0,.4,1) infinite alternate; }
-@keyframes seek { to { transform:translateX(22px); } }
 /* Copy: the slug gives one firm pulse and the button label turns to "Copied". */
 .swap.pulse { animation: pulse .36s var(--spring); }
 @keyframes pulse { 40% { transform:scale(1.08); } }
@@ -124,4 +119,34 @@ button .label { display:inline-block; animation: morph .24s var(--ease) both; }
 button.primary.done { background:var(--blue); border-color:var(--blue); color:#fff; }
 /* Why: the set list deals in one pick at a time. */
 .picks li { animation: rise .3s var(--ease) both; }
-@media (prefers-reduced-motion: reduce) { .seek::after { transform:translateX(11px); } }
+
+/* Art. Real assets, recoloured to the palette, each tied to one moment. Static frames under reduced motion. */
+.head { display:flex; justify-content:space-between; align-items:flex-end; gap:12px; }
+.comic { position:relative; flex:none; width:88px; height:106px; margin-bottom:6px; }
+.comic img { position:absolute; inset:0; width:100%; height:auto; transition:opacity .15s var(--ease); }
+.comic .talk, .comic.talking .calm { opacity:0; }
+.comic.talking .talk { opacity:1; }
+.comic .mic { position:absolute; left:-18px; bottom:6px; width:26px; height:26px; color:var(--graphite); transform-origin:50% 100%; transform:rotate(-8deg); transition:transform .35s var(--spring); }
+.comic.talking .mic { transform:rotate(14deg) translateX(4px); }
+.maps { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:16px 0 4px; }
+.map { position:relative; transition:opacity .3s var(--ease); }
+.map.dim { opacity:.35; }
+.map img, .map .pins { display:block; width:100%; height:auto; }
+.map .pins { position:absolute; inset:0; overflow:visible; }
+.dot { fill:var(--graphite); }
+.pin { animation: drop .45s var(--spring) both; transform-box:fill-box; transform-origin:50% 100%; }
+@keyframes drop { from { transform:translateY(-24px); opacity:0; } 60% { opacity:1; } }
+.wave { flex:none; width:22px; height:22px; color:var(--blue); }
+.wave path { transform-box:fill-box; transform-origin:50% 50%; animation: breathe .7s ease-in-out infinite alternate; }
+@keyframes breathe { to { transform:scaleY(.35); } }
+.crowd { display:flex; justify-content:center; align-items:flex-end; gap:0; margin:28px auto 0; height:84px; overflow:hidden; }
+.crowd img { width:70px; height:auto; margin:0 -6px; transform:translateY(60%); transition:transform .45s var(--spring); }
+.crowd.on img { transform:translateY(12%); animation: laugh .45s ease-in-out .45s 2 alternate; }
+.crowd.on img:nth-child(2) { transition-delay:.06s; animation-delay:.5s; }
+.crowd.on img:nth-child(3) { transition-delay:.12s; animation-delay:.55s; }
+@keyframes laugh { to { transform:translateY(6%) rotate(-2deg); } }
+.chart { width:18px; height:18px; color:var(--blue); vertical-align:-3px; margin-right:8px; }
+.lift { display:block; height:3px; margin:6px 0 2px; background:var(--rule); border-radius:2px; overflow:hidden; max-width:220px; }
+.lift i { display:block; height:100%; background:var(--blue); transform-origin:0 50%; animation: grow .45s var(--spring) both; }
+@keyframes grow { from { scale:0 1; } }
+@media (prefers-reduced-motion: reduce) { .crowd img { transform:translateY(12%) !important; } }

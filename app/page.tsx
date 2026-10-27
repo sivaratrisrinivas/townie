@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Comic, CityMap, Waveform, Crowd } from "./art";
 
 type Pick = { id: string; name: string; list: string; cityRank: number; nationalRank: number | null; lift: number | null; popularity: number | null; syllables: number; score: number; shared: boolean; postcard: boolean; rising: boolean; warning: string | null; warningReason: string | null; evidence: string; labels: string[]; tagNames: string[] };
 type Slot = { text: string; category: string; role: string; start: number; end: number; nearPunch: boolean };
@@ -122,8 +123,8 @@ export default function Page() {
 
       {shown === "joke" && (
         <section className={`card screen ${dir}`} aria-labelledby="h-joke">
-          <h1 id="h-joke" ref={headRef} tabIndex={-1}>Paste your joke</h1>
-          <p className="help" id="joke-help">Townie swaps one named thing for the one tonight&apos;s room knows. Your words stay yours.</p>
+          <div className="head"><div><h1 id="h-joke" ref={headRef} tabIndex={-1}>Paste your joke</h1>
+          <p className="help" id="joke-help">Townie swaps one named thing for the one tonight&apos;s room knows. Your words stay yours.</p></div><Comic talking={typing} /></div>
           <label htmlFor="joke" className="sr">Your joke</label>
           <textarea id="joke" aria-describedby="joke-help" value={joke} maxLength={1200} placeholder="My dad thinks Olive Garden is fine dining..."
             className={typing ? "typing" : ""} onChange={(e) => { setJoke(e.target.value); setTyping(true); clearTimeout(typeT.current); typeT.current = setTimeout(() => setTyping(false), 600); }}
@@ -145,8 +146,9 @@ export default function Page() {
           <datalist id="city-list">
             {["United States", "India"].flatMap((c) => country(c).map((x) => <option key={x.name} value={x.name}>{`${c}${x.note ? " · " + x.note : ""}`}</option>))}
           </datalist>
+          <CityMap city={city} />
           <div aria-live="polite" id="city-note">
-            {loading ? <p className="hushline" role="status"><span className="seek" aria-hidden="true" />{STEPS(city)[step]}...{slow && " Taking longer than usual."}</p>
+            {loading ? <p className="hushline" role="status"><Waveform />{STEPS(city)[step]}...{slow && " Taking longer than usual."}</p>
               : res && res.status !== "ok" ? (
                 <div className="banner warn" role="alert">
                   <p>{res.status === "no_slot" ? "No local reference to swap here. Townie works on a named thing, like a store, chain or show." : res.message}</p>
@@ -182,6 +184,7 @@ export default function Page() {
               <button className="link" onClick={() => { setRes(null); setJoke(""); go("joke"); }}>New joke</button>
             </p>
           </div>
+          <Crowd fireKey={output.name} />
         </section>
       )}
 
@@ -191,7 +194,7 @@ export default function Page() {
           {chosen && <p className="ev lead">{chosen.evidence} Same role: {slot.role}. {chosen.syllables} syllables. Source: Qloo Insights, {chosen.list === "tv" ? "TV show" : chosen.list === "restaurant" ? "place" : "brand"}.{res.locality ? ` Matched: ${res.locality}.` : ""}{res.cached ? " Cached." : ""}</p>}
           {res.fewer && <p className="note">Only {res.picks?.length ?? 0} pick{res.picks?.length === 1 ? "" : "s"} cleared the bar for {res.city}. <button className="link" onClick={() => run({ loosen: true })}>Loosen popularity floor</button></p>}
           <fieldset className="setlist">
-            <legend><strong>Set list for &quot;{slot.text}&quot; ({slot.role})</strong></legend>
+            <legend><svg className="chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M5 21v-6" /><path d="M12 21V9" /><path d="M19 21V3" /></svg><strong>Set list for &quot;{slot.text}&quot; ({slot.role})</strong></legend>
             <ul className="picks">
               {res.picks?.map((p, i) => (
                 <li key={p.id} className={p.id === sel ? "on" : ""} style={{ animationDelay: `${60 + i * 50}ms` }}>
@@ -200,7 +203,7 @@ export default function Page() {
                     <span>
                       <span className="pname">{p.name}</span>{" "}
                       <span className="ev">{p.evidence}{p.lift !== null && ` Lift ${p.lift >= 0 ? "+" : ""}${p.lift} ranks.`}{p.popularity !== null && ` Popularity ${p.popularity.toFixed(2)}.`}</span>
-                      <br />
+                      <span className="lift" aria-hidden="true"><i style={{ transform: `scaleX(${Math.max(p.lift ?? 0, 0) / Math.max(1, ...(res.picks ?? []).map((q) => q.lift ?? 0))})`, animationDelay: `${200 + i * 80}ms` }} /></span>
                       {p.warning && <span className="tag warn">Heads up: this touches {p.warning}. Your call.{p.warningReason ? ` (${p.warningReason})` : ""}</span>}
                       {p.labels.map((l) => <span key={l} className="tag warn">{l}</span>)}
                       {[...new Set(p.tagNames)].slice(0, 2).map((t, i) => <span key={t + i} className="tag">{t}</span>)}
