@@ -34,3 +34,19 @@ export async function incrBy(key: string, n: number, ttlSec: number): Promise<nu
   return cur;
 }
 export function _resetMemory() { mem.clear(); }
+
+// Lists, used for comic feedback. Newest first; capped length.
+const memList = new Map<string, string[]>();
+export async function lpushCapped(key: string, v: string, cap: number): Promise<void> {
+  if (storeKind() === "redis") { await redis(["LPUSH", key, v]); await redis(["LTRIM", key, 0, cap - 1]); return; }
+  const l = memList.get(key) ?? []; l.unshift(v); memList.set(key, l.slice(0, cap));
+}
+export async function lrange(key: string, n: number): Promise<string[]> {
+  if (storeKind() === "redis") return ((await redis(["LRANGE", key, 0, n - 1])) as string[]) ?? [];
+  return (memList.get(key) ?? []).slice(0, n);
+}
+export async function lrem(key: string, v: string): Promise<number> {
+  if (storeKind() === "redis") return Number(await redis(["LREM", key, 0, v]));
+  const l = memList.get(key) ?? []; const k = l.filter((x) => x !== v); memList.set(key, k); return l.length - k.length;
+}
+export function _resetLists() { memList.clear(); }

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { cityStatus } from "@/lib/cityCheck";
+import { Rate } from "./rate";
 import { Comic, CityMap, Waveform, Crowd } from "./art";
 
 type Pick = { id: string; name: string; list: string; cityRank: number; nationalRank: number | null; lift: number | null; popularity: number | null; syllables: number; score: number; shared: boolean; postcard: boolean; rising: boolean; warning: string | null; warningReason: string | null; evidence: string; labels: string[]; tagNames: string[] };
@@ -188,6 +189,9 @@ export default function Page() {
               <button className="link" onClick={() => { setRes(null); setJoke(""); go("joke"); }}>New joke</button>
             </p>
           </div>
+          <Rate payload={{ city: res.city, joke: output.text.slice(0, 500), original: slot.text, swapped: output.name, category: slot.category, list: chosen?.list ?? "",
+            popularity: chosen?.popularity ?? null, lift: chosen?.lift ?? null, rising: !!chosen?.rising, nearPunch: slot.nearPunch,
+            rank: (res.picks?.findIndex((p) => p.id === sel) ?? -1) + 1, others: (res.picks ?? []).filter((p) => p.id !== sel).map((p) => p.name) }} />
           <Crowd fireKey={output.name} />
         </section>
       )}
