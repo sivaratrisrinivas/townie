@@ -66,7 +66,7 @@ export default function Page() {
   }
   async function copy() {
     if (!output) return;
-    try { await navigator.clipboard.writeText(output.text); setCopied("Copied."); }
+    try { await navigator.clipboard.writeText(output.text); setCopied("Copied."); setTimeout(() => setCopied((c) => (c === "Copied." ? "" : c)), 1800); }
     catch { const el = outRef.current; if (el) { const rg = document.createRange(); rg.selectNodeContents(el); const s = getSelection(); s?.removeAllRanges(); s?.addRange(rg); } setCopied("Press Ctrl+C"); }
   }
 
@@ -97,6 +97,18 @@ export default function Page() {
     const ps = res?.picks ?? []; if (ps.length < 2) return;
     const i = ps.findIndex((p) => p.id === sel); setSel(ps[(i + 1) % ps.length].id); setCopied(""); setPlainOn(false); setPlain(null);
   };
+  // Motion direction follows the story: forward slides in from the right, back from the left.
+  const ORDER: Step[] = ["joke", "city", "reveal", "why"];
+  const prevShown = useRef<Step>("joke");
+  const dir = ORDER.indexOf(shown) >= ORDER.indexOf(prevShown.current) ? "fwd" : "back";
+  useEffect(() => { prevShown.current = shown; }, [shown]);
+  // Keyboard Enter gets the same physical press as a click.
+  const press = () => {
+    const b = document.querySelector<HTMLElement>(".screen button.primary");
+    if (b && !matchMedia("(prefers-reduced-motion: reduce)").matches) b.animate([{ transform: "scale(1)" }, { transform: "scale(.97)" }, { transform: "scale(1)" }], { duration: 180, easing: "cubic-bezier(.2,.8,.2,1)" });
+  };
+  const [typing, setTyping] = useState(false);
+  const typeT = useRef<ReturnType<typeof setTimeout>>(undefined);
   const stepNo = { joke: 1, city: 2, reveal: 3, why: 3 }[shown];
 
   return (
@@ -105,17 +117,17 @@ export default function Page() {
 
       <nav className="progress" aria-label="Progress">
         {shown !== "joke" ? <button className="back" onClick={() => history.back()}><span aria-hidden="true">← </span>Back</button> : <span />}
-        <span>Step {stepNo} of 3</span>
+        <span className="count">Step <span className="digit" key={stepNo}>{stepNo}</span> of 3</span>
       </nav>
 
       {shown === "joke" && (
-        <section className="card screen" aria-labelledby="h-joke">
+        <section className={`card screen ${dir}`} aria-labelledby="h-joke">
           <h1 id="h-joke" ref={headRef} tabIndex={-1}>Paste your joke</h1>
           <p className="help" id="joke-help">Townie swaps one named thing for the one tonight&apos;s room knows. Your words stay yours.</p>
           <label htmlFor="joke" className="sr">Your joke</label>
           <textarea id="joke" aria-describedby="joke-help" value={joke} maxLength={1200} placeholder="My dad thinks Olive Garden is fine dining..."
-            onChange={(e) => setJoke(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && joke.trim() && !tooLong) { e.preventDefault(); go("city"); } }} />
+            className={typing ? "typing" : ""} onChange={(e) => { setJoke(e.target.value); setTyping(true); clearTimeout(typeT.current); typeT.current = setTimeout(() => setTyping(false), 600); }}
+            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && joke.trim() && !tooLong) { e.preventDefault(); press(); go("city"); } }} />
           {tooLong && <p className="err" role="alert">Keep it under 600 characters ({joke.length} now).</p>}
           <button className="primary big" disabled={!joke.trim() || tooLong} onClick={() => go("city")}>Next: pick the room</button>
           <details className="quiet"><summary>Need a joke to try?</summary>
@@ -125,16 +137,16 @@ export default function Page() {
       )}
 
       {shown === "city" && (
-        <section className="card screen" aria-labelledby="h-city" aria-busy={loading}>
+        <section className={`card screen ${dir}`} aria-labelledby="h-city" aria-busy={loading}>
           <h1 id="h-city" ref={headRef} tabIndex={-1}>Where are you playing tonight?</h1>
           <label htmlFor="city" className="sr">City</label>
           <input id="city" type="text" list="city-list" role="combobox" aria-autocomplete="list" autoComplete="off" value={city} placeholder="Austin, Hyderabad, Mumbai..."
-            onChange={(e) => { setCity(e.target.value); if (res) setRes(null); }} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); run(); } }} aria-describedby="city-note" disabled={loading} />
+            onChange={(e) => { setCity(e.target.value); if (res) setRes(null); }} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); press(); run(); } }} aria-describedby="city-note" disabled={loading} />
           <datalist id="city-list">
             {["United States", "India"].flatMap((c) => country(c).map((x) => <option key={x.name} value={x.name}>{`${c}${x.note ? " · " + x.note : ""}`}</option>))}
           </datalist>
           <div aria-live="polite" id="city-note">
-            {loading ? <p className="hushline" role="status">{STEPS(city)[step]}...{slow && " Taking longer than usual."}</p>
+            {loading ? <p className="hushline" role="status"><span className="seek" aria-hidden="true" />{STEPS(city)[step]}...{slow && " Taking longer than usual."}</p>
               : res && res.status !== "ok" ? (
                 <div className="banner warn" role="alert">
                   <p>{res.status === "no_slot" ? "No local reference to swap here. Townie works on a named thing, like a store, chain or show." : res.message}</p>
@@ -153,17 +165,17 @@ export default function Page() {
       )}
 
       {shown === "reveal" && res?.status === "ok" && output && slot && (
-        <section className="card stage screen" aria-labelledby="h-reveal">
+        <section className={`card stage screen ${dir}`} aria-labelledby="h-reveal">
           <h1 id="h-reveal" ref={headRef} tabIndex={-1} className="kicker">Tonight in {res.city}, say it like this</h1>
           <p className="joke" ref={outRef} aria-live="polite" aria-label={`Result: ${output.text}`}>
-            {output.before}<span className="swapwrap" key={output.name}><span className="old" aria-hidden="true">{slot.text}</span><span className="swap">{output.name}</span></span>{output.after}
+            {output.before}<span className="swapwrap" key={output.name}><span className="old" aria-hidden="true">{slot.text}</span><span className={copied === "Copied." ? "swap pulse" : "swap"}>{output.name}</span></span>{output.after}
           </p>
           {res.punchHint && <p className="banner warn">This name sits far from your punchline. It adds recognition, maybe not the laugh.</p>}
           {!res.selectedId && <p className="banner warn">{res.onlyShared ? `Only shared picks for ${res.city}. Your call.` : "No pick is pre-selected. Your call."}</p>}
           {chosen?.warning && <p className="banner warn">Heads up: this touches {chosen.warning}. Your call.</p>}
           <div className="center">
-            <button className="primary big" onClick={copy}>Copy joke</button>
-            <p role="status" className="note">{copied}</p>
+            <button className={copied === "Copied." ? "primary big done" : "primary big"} onClick={copy}><span key={copied === "Copied." ? "y" : "n"} className="label">{copied === "Copied." ? "Copied" : "Copy joke"}</span></button>
+            <p role="status" className={copied === "Copied." ? "sr" : "note"}>{copied}</p>
             <p className="quietlinks">
               {(res.picks?.length ?? 0) > 1 && <button className="link" onClick={nextPick}>Try another pick</button>}
               <button className="link" onClick={() => go("why")}>Why this?</button>
@@ -174,15 +186,15 @@ export default function Page() {
       )}
 
       {shown === "why" && res?.status === "ok" && output && slot && (
-        <section className="card screen" aria-labelledby="h-why">
+        <section className={`card screen ${dir}`} aria-labelledby="h-why">
           <h1 id="h-why" ref={headRef} tabIndex={-1}>Why {chosen?.name ?? "this"}?</h1>
           {chosen && <p className="ev lead">{chosen.evidence} Same role: {slot.role}. {chosen.syllables} syllables. Source: Qloo Insights, {chosen.list === "tv" ? "TV show" : chosen.list === "restaurant" ? "place" : "brand"}.{res.locality ? ` Matched: ${res.locality}.` : ""}{res.cached ? " Cached." : ""}</p>}
           {res.fewer && <p className="note">Only {res.picks?.length ?? 0} pick{res.picks?.length === 1 ? "" : "s"} cleared the bar for {res.city}. <button className="link" onClick={() => run({ loosen: true })}>Loosen popularity floor</button></p>}
           <fieldset className="setlist">
             <legend><strong>Set list for &quot;{slot.text}&quot; ({slot.role})</strong></legend>
             <ul className="picks">
-              {res.picks?.map((p) => (
-                <li key={p.id} className={p.id === sel ? "on" : ""}>
+              {res.picks?.map((p, i) => (
+                <li key={p.id} className={p.id === sel ? "on" : ""} style={{ animationDelay: `${60 + i * 50}ms` }}>
                   <label>
                     <input type="radio" name="pick" checked={p.id === sel} onChange={() => setSel(p.id)} />
                     <span>

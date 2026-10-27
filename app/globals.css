@@ -94,3 +94,34 @@ footer a { color:var(--graphite); display:inline-block; min-height:44px; min-wid
 
 @media (max-width:600px) { .compare { grid-template-columns:1fr; } main { padding:28px 20px 56px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation:none !important; transition:none !important; } .old { display:none; } }
+
+/* Motion. Every move is a short spring on transform/opacity only, and all of it stops under reduced motion. */
+/* Screens arrive from the direction you travelled, then settle. */
+.screen { animation: in-fwd .38s var(--spring) both; }
+.screen.back { animation-name: in-back; }
+@keyframes in-fwd { from { transform:translateX(28px); opacity:0; } }
+@keyframes in-back { from { transform:translateX(-28px); opacity:0; } }
+/* The step number rolls up to the next one, so progress feels counted. */
+.count .digit { display:inline-block; animation: roll .32s var(--spring) both; }
+@keyframes roll { from { transform:translateY(.7em); opacity:0; } }
+/* The main button depresses like a key, for clicks and for Enter. */
+button.primary:active { transform:scale(.97); }
+/* While you type, the field's ring tightens to say "listening". */
+textarea.typing:focus { box-shadow:0 0 0 2px #2430D633; }
+/* Each hint or warning on the city step rises in, so a change is noticed. */
+#city-note > * { animation: rise .26s var(--ease) both; }
+@keyframes rise { from { transform:translateY(6px); opacity:0; } }
+/* While Qloo is fetched, a small blue slug sweeps back and forth: searching. */
+.hushline { display:flex; align-items:center; gap:10px; }
+.seek { flex:none; width:36px; height:6px; border-radius:3px; background:#2430D61A; overflow:hidden; position:relative; }
+.seek::after { content:""; position:absolute; inset:0; width:14px; border-radius:3px; background:var(--blue); animation: seek .9s cubic-bezier(.6,0,.4,1) infinite alternate; }
+@keyframes seek { to { transform:translateX(22px); } }
+/* Copy: the slug gives one firm pulse and the button label turns to "Copied". */
+.swap.pulse { animation: pulse .36s var(--spring); }
+@keyframes pulse { 40% { transform:scale(1.08); } }
+button .label { display:inline-block; animation: morph .24s var(--ease) both; }
+@keyframes morph { from { transform:translateY(8px); opacity:0; } }
+button.primary.done { background:var(--blue); border-color:var(--blue); color:#fff; }
+/* Why: the set list deals in one pick at a time. */
+.picks li { animation: rise .3s var(--ease) both; }
+@media (prefers-reduced-motion: reduce) { .seek::after { transform:translateX(11px); } }
