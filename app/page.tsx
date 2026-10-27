@@ -154,7 +154,6 @@ export default function Page() {
 
       {shown === "reveal" && res?.status === "ok" && output && slot && (
         <section className="card stage screen" aria-labelledby="h-reveal">
-          <div className="spot" aria-hidden="true" />
           <h1 id="h-reveal" ref={headRef} tabIndex={-1} className="kicker">Tonight in {res.city}, say it like this</h1>
           <p className="joke" ref={outRef} aria-live="polite" aria-label={`Result: ${output.text}`}>
             {output.before}<span className="swapwrap" key={output.name}><span className="old" aria-hidden="true">{slot.text}</span><span className="swap">{output.name}</span></span>{output.after}
