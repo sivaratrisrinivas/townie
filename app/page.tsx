@@ -25,10 +25,6 @@ export default function Page() {
   const [plainOn, setPlainOn] = useState(false);
   const [plain, setPlain] = useState<{ status: string; output?: string; name?: string; message?: string } | null>(null);
   const [copied, setCopied] = useState("");
-  const [typing, setTyping] = useState(false);
-  const [crowd, setCrowd] = useState(0); // bumps to replay the crowd reaction
-  const typeT = useRef<ReturnType<typeof setTimeout> | null>(null);
-  function pulse() { setTyping(true); if (typeT.current) clearTimeout(typeT.current); typeT.current = setTimeout(() => setTyping(false), 700); }
   const outRef = useRef<HTMLParagraphElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -47,7 +43,7 @@ export default function Page() {
     try {
       const r = await fetch("/api/townie", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ joke, city, ...extra }), signal: ac.signal });
       const j = (await r.json()) as Res;
-      setRes(j); setSel(j.selectedId ?? null); if (j.status === "ok") setCrowd((c) => c + 1);
+      setRes(j); setSel(j.selectedId ?? null);
     } catch (e) {
       if ((e as Error).name !== "AbortError") setRes({ status: "llm_error", message: "The noun finder tripped." });
     } finally { clearInterval(t1); clearTimeout(t2); setLoading(false); }
@@ -70,7 +66,7 @@ export default function Page() {
   }
   async function copy() {
     if (!output) return;
-    try { await navigator.clipboard.writeText(output.text); setCopied("Copied."); setCrowd((c) => c + 1); }
+    try { await navigator.clipboard.writeText(output.text); setCopied("Copied."); }
     catch { const el = outRef.current; if (el) { const rg = document.createRange(); rg.selectNodeContents(el); const s = getSelection(); s?.removeAllRanges(); s?.addRange(rg); } setCopied("Press Ctrl+C"); }
   }
 
@@ -99,33 +95,27 @@ export default function Page() {
   const unknownCity = city.trim().length > 1 && cities.length > 0 && !cityObj && !cities.some((c) => c.name.toLowerCase().startsWith(city.trim().toLowerCase()));
   const nextPick = () => {
     const ps = res?.picks ?? []; if (ps.length < 2) return;
-    const i = ps.findIndex((p) => p.id === sel); setSel(ps[(i + 1) % ps.length].id); setCopied(""); setPlainOn(false); setPlain(null); setCrowd((c) => c + 1);
+    const i = ps.findIndex((p) => p.id === sel); setSel(ps[(i + 1) % ps.length].id); setCopied(""); setPlainOn(false); setPlain(null);
   };
   const stepNo = { joke: 1, city: 2, reveal: 3, why: 3 }[shown];
 
   return (
-    <main className={`club${typing ? " typing" : ""}${loading ? " tense" : ""}${shown === "reveal" ? " lit" : ""}`} style={{ ["--energy" as string]: Math.min(joke.length / 300, 1) }}>
-      <div className="haze" aria-hidden="true" />
-      <header className="marquee small">
-        <p className="bulbs" aria-hidden="true" />
-        <p className="brand"><span className="neon">Townie</span><span className="sub">Talk like you grew up here.</span></p>
-        {cityObj && shown !== "joke" && <p className="tonight" aria-hidden="true"><span>Tonight</span> <strong key={cityObj.name}>{cityObj.name}</strong></p>}
-      </header>
+    <main>
+      <header className="brand"><span className="word">Townie</span> <span className="promise">Talk like you grew up here.</span></header>
 
       <nav className="progress" aria-label="Progress">
         {shown !== "joke" ? <button className="back" onClick={() => history.back()}><span aria-hidden="true">← </span>Back</button> : <span />}
-        <span className="steps" aria-label={`Step ${stepNo} of 3`}>{[1, 2, 3].map((n) => <i key={n} className={n <= stepNo ? "on" : ""} aria-hidden="true" />)}<b aria-hidden="true">{stepNo}/3</b></span>
+        <span>Step {stepNo} of 3</span>
       </nav>
 
       {shown === "joke" && (
-        <section className="card mic screen" aria-labelledby="h-joke">
+        <section className="card screen" aria-labelledby="h-joke">
           <h1 id="h-joke" ref={headRef} tabIndex={-1}>Paste your joke</h1>
           <p className="help" id="joke-help">Townie swaps one named thing for the one tonight&apos;s room knows. Your words stay yours.</p>
           <label htmlFor="joke" className="sr">Your joke</label>
           <textarea id="joke" aria-describedby="joke-help" value={joke} maxLength={1200} placeholder="My dad thinks Olive Garden is fine dining..."
-            onChange={(e) => { setJoke(e.target.value); pulse(); }}
+            onChange={(e) => setJoke(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && joke.trim() && !tooLong) { e.preventDefault(); go("city"); } }} />
-          <div className="hum" aria-hidden="true"><span /></div>
           {tooLong && <p className="err" role="alert">Keep it under 600 characters ({joke.length} now).</p>}
           <button className="primary big" disabled={!joke.trim() || tooLong} onClick={() => go("city")}>Next: pick the room</button>
           <details className="quiet"><summary>Need a joke to try?</summary>
@@ -139,7 +129,7 @@ export default function Page() {
           <h1 id="h-city" ref={headRef} tabIndex={-1}>Where are you playing tonight?</h1>
           <label htmlFor="city" className="sr">City</label>
           <input id="city" type="text" list="city-list" role="combobox" aria-autocomplete="list" autoComplete="off" value={city} placeholder="Austin, Hyderabad, Mumbai..."
-            onChange={(e) => { setCity(e.target.value); pulse(); if (res) setRes(null); }} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); run(); } }} aria-describedby="city-note" disabled={loading} />
+            onChange={(e) => { setCity(e.target.value); if (res) setRes(null); }} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); run(); } }} aria-describedby="city-note" disabled={loading} />
           <datalist id="city-list">
             {["United States", "India"].flatMap((c) => country(c).map((x) => <option key={x.name} value={x.name}>{`${c}${x.note ? " · " + x.note : ""}`}</option>))}
           </datalist>
@@ -156,7 +146,7 @@ export default function Page() {
               : <p className="note">{cityObj?.note ?? "14 cities in the US and India."}</p>}
           </div>
           <div className="row">
-            <button className="primary big" disabled={!canRun || unknownCity} onClick={() => run()}><span aria-hidden="true">🎤 </span>Townie it</button>
+            <button className="primary big" disabled={!canRun || unknownCity} onClick={() => run()}>Townie it</button>
             {loading && <button onClick={() => abortRef.current?.abort()}>Cancel</button>}
           </div>
         </section>
@@ -165,7 +155,6 @@ export default function Page() {
       {shown === "reveal" && res?.status === "ok" && output && slot && (
         <section className="card stage screen" aria-labelledby="h-reveal">
           <div className="spot" aria-hidden="true" />
-          {crowd > 0 && <div className="crowd" key={crowd} aria-hidden="true"><span>ha</span><span>HA</span><span>ooh</span><span>ha!</span><span>👏</span></div>}
           <h1 id="h-reveal" ref={headRef} tabIndex={-1} className="kicker">Tonight in {res.city}, say it like this</h1>
           <p className="joke" ref={outRef} aria-live="polite" aria-label={`Result: ${output.text}`}>
             {output.before}<span className="swapwrap" key={output.name}><span className="old" aria-hidden="true">{slot.text}</span><span className="swap">{output.name}</span></span>{output.after}
@@ -199,11 +188,11 @@ export default function Page() {
                     <input type="radio" name="pick" checked={p.id === sel} onChange={() => setSel(p.id)} />
                     <span>
                       <span className="pname">{p.name}</span>{" "}
-                      <span className="ev">{p.evidence}{p.lift !== null && ` Lift ${p.lift >= 0 ? "+" : ""}${p.lift} ranks.`}{p.popularity !== null ? ` Popularity ${p.popularity.toFixed(2)}.` : " Popularity not returned."} {p.syllables} syl.</span>
+                      <span className="ev">{p.evidence}{p.lift !== null && ` Lift ${p.lift >= 0 ? "+" : ""}${p.lift} ranks.`}{p.popularity !== null && ` Popularity ${p.popularity.toFixed(2)}.`}</span>
                       <br />
                       {p.warning && <span className="tag warn">Heads up: this touches {p.warning}. Your call.{p.warningReason ? ` (${p.warningReason})` : ""}</span>}
                       {p.labels.map((l) => <span key={l} className="tag warn">{l}</span>)}
-                      {p.tagNames.slice(0, 3).map((t, i) => <span key={t + i} className="tag">{t}</span>)}
+                      {[...new Set(p.tagNames)].slice(0, 2).map((t, i) => <span key={t + i} className="tag">{t}</span>)}
                     </span>
                   </label>
                 </li>
@@ -224,15 +213,15 @@ export default function Page() {
             </div>
           )}
           {res.slots && res.slots.length > 1 && <SlotMenu res={res} onPick={(i) => { go("city", true); run({ slotIndex: i }); }} />}
+          <details className="how"><summary>How Townie picks</summary>
+          <p>An AI finds the one named thing your joke leans on and its role. Code then ranks local options from Qloo taste data: popular in this city (30%), more popular here than in the country (30%), similar syllables (15%), similar ending sound (10%), not the obvious postcard pick (10%), short and sayable (5%). Brands popular across most cities in the country, tourist landmarks and fast-rising fads are labelled and never pre-selected. Religion, caste and politics get a warning; you choose.</p>
+        </details>
           <div className="center"><button className="primary big" onClick={() => history.back()}>Back to the stage</button></div>
         </section>
       )}
 
       <footer>
-        <details><summary>How Townie picks</summary>
-          <p>An AI finds the one named thing your joke leans on and its role. Code then ranks local options from Qloo taste data: popular in this city (30%), more popular here than in the country (30%), similar syllables (15%), similar ending sound (10%), not the obvious postcard pick (10%), short and sayable (5%). Brands popular across most cities in the country, tourist landmarks and fast-rising fads are labelled and never pre-selected. Religion, caste and politics get a warning; you choose.</p>
-        </details>
-        <p>Powered by <a href="https://www.qloo.com" target="_blank" rel="noreferrer">Qloo</a> taste data. Taste data only, no demographics. Jokes are cached on our server so repeat runs are free. They are never shown to anyone else. <a href="https://github.com/sivaratrisrinivas/townie" target="_blank" rel="noreferrer">Source on GitHub</a> (MIT).</p>
+        <p>Local picks from <a href="https://www.qloo.com" target="_blank" rel="noreferrer">Qloo</a> taste data. Your jokes are never shown to anyone. <a href="https://github.com/sivaratrisrinivas/townie" target="_blank" rel="noreferrer">Source</a> (MIT)</p>
       </footer>
     </main>
   );
