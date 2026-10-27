@@ -1,0 +1,27 @@
+name: CI
+on:
+  push: { branches: [main] }
+  pull_request:
+permissions: { contents: read }
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci
+      - run: npm test
+      - name: No Qloo data in the repo (AC12)
+        run: |
+          if git ls-files | grep -E '^data/packs/|^coverage/|\.qloo\.json$'; then echo "Qloo data committed"; exit 1; fi
+      - name: Build (no keys, packs skipped)
+        run: npx next build
+      - run: npm run typecheck
+      - name: Built JS contains no key patterns (AC12)
+        run: |
+          if grep -rEl 'sk-ant-[A-Za-z0-9_-]{20,}' .next/static; then exit 1; fi
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env: { GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}" }
