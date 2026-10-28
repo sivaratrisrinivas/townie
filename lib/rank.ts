@@ -55,6 +55,12 @@ export function risingCut(items: Item[]): number {
   return cut > 0 ? cut : Infinity; // nothing is "rising" if growth is flat
 }
 
+/** TN-FIX3: say a Qloo name the way people do ("Chuy's Restaurant" -> "Chuy's", "99 Cents Only Stores" -> "99 Cents Only"). */
+export function spoken(name: string): string {
+  const t = name.replace(/\s+(Restaurants?|Stores?|Supermarkets?)$/i, "");
+  return t.trim().length >= 3 ? t : name;
+}
+
 const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "_");
 /** TN-FIX3: drop items Qloo itself places in some other city (Eggslut is an LA spot, not an NYC one). */
 export function isOutOfTown(it: Item, city: string, locality: string | null | undefined): boolean {
@@ -163,7 +169,7 @@ export function shortlist({ pack, countryPacks, national, slot, popularityFloor 
     if (postcard) labels.push("Tourist landmark. Locals may groan.");
     if (rising) labels.push(`Rising fast in ${pack.city}. May date quickly.`);
     return {
-      id: it.id, name: it.name, list, category: slot.category, cityRank, nationalRank: nr, lift,
+      id: it.id, name: spoken(it.name), list, category: slot.category, cityRank, nationalRank: nr, lift,
       popularity: it.popularity, syllables: syl, score: Math.round(score * 1000) / 1000,
       shared: isShared, postcard, rising, warning: null, warningReason: null, evidence, labels, tagNames: it.tagNames,
     };

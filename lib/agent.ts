@@ -108,6 +108,11 @@ export function swapOut(joke: string, slot: { text: string; start: number; end: 
   return all.parts.some((p) => p.swap) ? all.text : stitch(joke, slot.start, slot.end, name);
 }
 
+/** TN-FIX3: the reviewer sometimes files a "warning" whose own reason says there is no risk. Ignore those. */
+export function isNonFlag(reason: string): boolean {
+  return /non-?flag|no (real )?risk|does not touch|doesn't touch|no religious|not (a )?(religious|political|caste)|is not needed/i.test(reason ?? "");
+}
+
 function build(joke: string, city: CityDef, slots: FoundSlot[], idx: number, cands: Pick[], warnings: Warning[], extra: { roleLoose: boolean; locality: string | null; meanToLocals: boolean }): Result {
   const slot = slots[idx];
   const codeW: Warning[] = cands.map((c) => ({ c, f: codeFlag(c.name + " " + c.tagNames.join(" ")) })).filter((x) => x.f).map((x) => ({ id: x.c.id, flag: x.f as Flag, reason: `Name or tags touch ${x.f}.` }));
@@ -155,7 +160,7 @@ export async function runAgent(joke: string, city: CityDef, llm: LlmFn, populari
     if (use.name === "submit_review" && ranked?.kind === "ok") {
       const cands = ranked.candidates;
       const ws = ((use.input.warnings ?? []) as { n: number; flag: Flag; reason: string }[])
-        .filter((w) => cands[w.n - 1]).map((w) => ({ id: cands[w.n - 1].id, flag: w.flag, reason: w.reason }));
+        .filter((w) => cands[w.n - 1] && !isNonFlag(w.reason)).map((w) => ({ id: cands[w.n - 1].id, flag: w.flag, reason: w.reason }));
       return build(joke, city, slots, idx, cands, ws, { roleLoose: ranked.roleLoose, locality: ranked.locality, meanToLocals: !!use.input.mean_to_locals });
     }
   }

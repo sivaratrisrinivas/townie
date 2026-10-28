@@ -86,3 +86,20 @@ describe("TN-FIX3 articles and repeated mentions", () => {
     expect(r.parts.filter((p) => p.swap).length).toBe(2);
   });
 });
+
+describe("TN-FIX3 sayable names", () => {
+  it("drops a trailing Restaurant or Stores from Qloo names", async () => {
+    const { spoken } = await import("@/lib/rank");
+    expect(spoken("Chuy's Restaurant")).toBe("Chuy's");
+    expect(spoken("99 Cents Only Stores")).toBe("99 Cents Only");
+    expect(spoken("Whole Foods Market")).toBe("Whole Foods Market");
+  });
+});
+
+describe("TN-FIX3 reviewer false flags", () => {
+  it("ignores a warning whose reason says there is no risk", async () => {
+    const { isNonFlag } = await import("@/lib/agent");
+    expect(isNonFlag("the candidate 'California Pizza Kitchen' does not touch those topics, so this is a non-flag.")).toBe(true);
+    expect(isNonFlag("Name refers to a Hindu deity.")).toBe(false);
+  });
+});
