@@ -100,6 +100,7 @@ describe("TN-FIX3 reviewer false flags", () => {
   it("ignores a warning whose reason says there is no risk", async () => {
     const { isNonFlag } = await import("@/lib/agent");
     expect(isNonFlag("the candidate 'California Pizza Kitchen' does not touch those topics, so this is a non-flag.")).toBe(true);
+    expect(isNonFlag("Name does not clearly touch religion; flagged only as a precaution.")).toBe(true);
     expect(isNonFlag("Name refers to a Hindu deity.")).toBe(false);
   });
 });

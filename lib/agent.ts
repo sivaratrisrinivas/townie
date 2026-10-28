@@ -30,7 +30,7 @@ Categories: dining = restaurant chains and fast food brands; retail = shops, gro
 role: 2 to 4 plain words for the comic role (for example "fancy grocery store", "cheap fast food", "trashy reality show").
 role_keywords: up to 3 from the allowed list for that category that describe the role.
 near_punch: true if the slot is in the same sentence as the punchline or in the sentence right before it. false only when the slot sits in an earlier setup sentence and the punch comes later.
-Step 2: you will get a numbered shortlist from city data. Call submit_review. Flag only candidates whose NAME clearly touches religion, caste or politics, with a short reason. Set mean_to_locals true only if swapping would turn the joke against the local audience. Do not rank or suggest names.`;
+Step 2: you will get a numbered shortlist from city data. Call submit_review. Flag only candidates whose NAME clearly touches religion, caste or politics, with a short reason. Most shortlists have nothing to flag: then return an empty warnings array. Set mean_to_locals true only if swapping would turn the joke against the local audience. Do not rank or suggest names.`;
 
 export const TOOLS: ToolDef[] = [
   {
@@ -110,7 +110,7 @@ export function swapOut(joke: string, slot: { text: string; start: number; end: 
 
 /** TN-FIX3: the reviewer sometimes files a "warning" whose own reason says there is no risk. Ignore those. */
 export function isNonFlag(reason: string): boolean {
-  return /non-?flag|no (real )?risk|does not touch|doesn't touch|no religious|not (a )?(religious|political|caste)|is not needed/i.test(reason ?? "");
+  return /non-?flag|no (real )?risk|does not (clearly )?touch|doesn't (clearly )?touch|precaution|no sensitive|no religious|not (a )?(religious|political|caste)|is not needed/i.test(reason ?? "");
 }
 
 function build(joke: string, city: CityDef, slots: FoundSlot[], idx: number, cands: Pick[], warnings: Warning[], extra: { roleLoose: boolean; locality: string | null; meanToLocals: boolean }): Result {
