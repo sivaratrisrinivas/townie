@@ -6,6 +6,14 @@ import { packsReady } from "@/lib/packs";
 import { get, set } from "@/lib/store";
 import { hash, ipOf, json, MAX_JOKE, TTL } from "@/lib/api";
 import { POPULARITY_FLOOR } from "@/lib/rank";
+import { pickAngle } from "@/lib/localAngle";
+
+// TN-FIX4: attach one local angle (not Qloo) to any result for a covered city. Qloo still decides the swap.
+function withAngle(r: Record<string, unknown>, joke: string, city: string) {
+  const slots = r.slots as { category: string }[] | undefined;
+  const cat = slots?.[typeof r.slotIndex === "number" ? r.slotIndex : 0]?.category;
+  return { ...r, localAngle: pickAngle(city, joke, cat) };
+}
 
 export const runtime = "nodejs";
 
@@ -25,9 +33,9 @@ export async function POST(req: Request) {
   if (cached && "slots" in cached && (typeof b.slotIndex === "number" || b.loosen)) {
     const idx = typeof b.slotIndex === "number" ? b.slotIndex : cached.slotIndex;
     if (idx < 0 || idx >= cached.slots.length) return json({ status: "validation", message: "Unknown slot." }, 400);
-    return json({ ...rerankSlot(joke, city, cached.slots, idx, floor), cached: true, correctedCity: city.name });
+    return json(withAngle({ ...rerankSlot(joke, city, cached.slots, idx, floor), cached: true, correctedCity: city.name }, joke, city.name));
   }
-  if (cached) return json({ ...cached, cached: true, correctedCity: city.name });
+  if (cached) return json(withAngle({ ...cached, cached: true, correctedCity: city.name }, joke, city.name));
 
   if (!(await takeVisitor(ipOf(req), "run"))) return json({ status: "rate_limited", message: "You've used today's free runs. Examples and cached jokes still work." }, 429);
   let result: Result | null = null;
@@ -40,5 +48,5 @@ export async function POST(req: Request) {
     }
   }
   await set(key, JSON.stringify(result), TTL);
-  return json({ ...result, cached: false, correctedCity: city.name });
+  return json(withAngle({ ...result, cached: false, correctedCity: city.name }, joke, city.name));
 }

@@ -168,3 +168,9 @@ button.primary.done { background:var(--blue); border-color:var(--blue); color:#f
 .rate-note input[type=text] { margin-top:8px; font-size:1rem; min-height:48px; padding:10px 14px; }
 .rate-note button { margin-top:8px; min-height:48px; flex:none; }
 .rate-thanks { margin:32px 0 0; text-align:center; color:var(--dim); animation: rise .26s var(--ease) both; }
+
+/* TN-FIX4: one calm local-angle line, visibly not Qloo. */
+.angle { max-width:520px; margin:28px auto 0; text-align:center; font-size:.95rem; line-height:1.5; color:var(--ink, inherit); animation: rise .3s var(--ease) both; }
+.angle-k { font-size:.72rem; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--dim); margin-right:6px; }
+.angle-src { display:block; margin-top:2px; font-size:.8rem; color:var(--dim); }
+.angle-src a { color:inherit; text-underline-offset:2px; }

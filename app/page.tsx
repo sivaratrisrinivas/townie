@@ -7,7 +7,17 @@ import { Comic, CityMap, Waveform, Crowd } from "./art";
 
 type Pick = { id: string; name: string; list: string; cityRank: number; nationalRank: number | null; lift: number | null; popularity: number | null; syllables: number; score: number; shared: boolean; postcard: boolean; rising: boolean; warning: string | null; warningReason: string | null; evidence: string; labels: string[]; tagNames: string[] };
 type Slot = { text: string; category: string; role: string; start: number; end: number; nearPunch: boolean };
-type Res = { status: string; message?: string; joke?: string; city?: string; slots?: Slot[]; slotIndex?: number; picks?: Pick[]; selectedId?: string | null; punchHint?: boolean; fewer?: boolean; onlyShared?: boolean; roleLoose?: boolean; locality?: string | null; cached?: boolean };
+type Res = { status: string; message?: string; joke?: string; city?: string; slots?: Slot[]; slotIndex?: number; picks?: Pick[]; selectedId?: string | null; punchHint?: boolean; fewer?: boolean; onlyShared?: boolean; roleLoose?: boolean; locality?: string | null; cached?: boolean; localAngle?: LocalAngle | null };
+type LocalAngle = { reference: string; why: string; category: string; url: string; source: string };
+
+const end = (x: string) => (/[a-z0-9)]$/i.test(x) ? x + "." : x);
+/** TN-FIX4: one calm line, clearly not Qloo. */
+function AngleLine({ a }: { a?: LocalAngle | null }) {
+  if (!a) return null;
+  return (
+    <p className="angle"><span className="angle-k">Local angle</span> {end(a.reference)} {end(a.why)} <span className="angle-src">From local sources, not Qloo · <a href={a.url} target="_blank" rel="noopener noreferrer">{a.source}</a></span></p>
+  );
+}
 type City = { name: string; country: string; note: string | null };
 
 const EXAMPLES = [
@@ -159,6 +169,7 @@ export default function Page() {
               : res && res.status !== "ok" ? (
                 <div className="banner warn" role="alert">
                   <p>{res.status === "no_slot" ? "No local reference to swap here. Townie works on a named thing, like a store, chain or show." : res.message}</p>
+                  <AngleLine a={res.localAngle} />
                   {(res.status === "category_not_covered" || res.status === "qloo_empty") && res.slots && res.slots.length > 1 && <SlotMenu res={res} onPick={(i) => run({ slotIndex: i })} />}
                   {(res.status === "llm_error" || res.status === "qloo_error") && <button onClick={() => run()}>Retry</button>}
                   {(res.status === "no_slot" || res.status === "category_not_covered") && <button className="link" onClick={() => history.back()}>Change the joke</button>}
@@ -194,7 +205,8 @@ export default function Page() {
               <button className="link" onClick={() => { setRes(null); setJoke(""); go("joke"); }}>New joke</button>
             </p>
           </div>
-          <Rate payload={{ city: res.city, joke: output.text.slice(0, 500), original: slot.text, swapped: output.name, category: slot.category, list: chosen?.list ?? "",
+          <AngleLine a={res.localAngle} />
+          <Rate payload={{ angle: res.localAngle?.reference ?? "", angleCategory: res.localAngle?.category ?? "", city: res.city, joke: output.text.slice(0, 500), original: slot.text, swapped: output.name, category: slot.category, list: chosen?.list ?? "",
             popularity: chosen?.popularity ?? null, lift: chosen?.lift ?? null, rising: !!chosen?.rising, nearPunch: slot.nearPunch,
             rank: (res.picks?.findIndex((p) => p.id === sel) ?? -1) + 1, others: (res.picks ?? []).filter((p) => p.id !== sel).map((p) => p.name) }} />
           <Crowd fireKey={output.name} />

@@ -8,6 +8,8 @@ export type Feedback = {
   id: string; ts: string; city: string; joke: string; original: string; swapped: string; category: string; list: string;
   popularity: number | null; lift: number | null; rising: boolean; nearPunch: boolean | null; rank: number; others: string[];
   rating: Rating; note: string; session: string;
+  /** TN-FIX4: the local truth shown next to the swap (not Qloo), or "" if none. */
+  angle: string; angleCategory: string;
 };
 export const FB_KEY = "fb:all";
 const CAP = 5000;
@@ -28,6 +30,7 @@ export function parseFeedback(b: Record<string, unknown>, now = new Date()): Fee
     nearPunch: typeof b.nearPunch === "boolean" ? b.nearPunch : null, rank: rank !== null ? Math.max(1, Math.min(50, Math.round(rank))) : 0,
     others: Array.isArray(b.others) ? b.others.slice(0, 10).map((x) => s(x, 120)).filter(Boolean) : [],
     rating: b.rating as Rating, note: s(b.note, 280), session,
+    angle: s(b.angle, 200), angleCategory: s(b.angleCategory, 40),
   };
 }
 
@@ -63,6 +66,8 @@ export function summarize(rows: Feedback[]) {
     byLift: group(rows, (f) => bucketLift(f.lift)),
     byCity: group(rows, (f) => f.city),
     byRising: group(rows, (f) => (f.rising ? "rising" : "steady")),
+    byAngle: group(rows, (f) => (f.angle ? "shown" : "none")),
+    byAngleCategory: group(rows.filter((f) => f.angle), (f) => f.angleCategory || "unknown"),
     latestNotes: rows.filter((f) => f.note).slice(0, 20).map((f) => ({ ts: f.ts, city: f.city, swapped: f.swapped, rating: f.rating, note: f.note })),
   };
 }
