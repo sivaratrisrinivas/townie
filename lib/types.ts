@@ -21,6 +21,8 @@ export interface Pack {
   country: Country;
   lists: Partial<Record<ListKey, Item[]>>;
   localities: Partial<Record<ListKey, string | null>>;
+  /** TN-FIX3: Qloo lists for one sub-category in this city (pizza, coffee, ...). */
+  subs?: Partial<Record<string, Item[]>>;
 }
 
 export type Flag = "religion" | "caste" | "politics";

@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { cityStatus } from "@/lib/cityCheck";
 import { Rate } from "./rate";
+import { swapAll } from "@/lib/stitch";
 import { Comic, CityMap, Waveform, Crowd } from "./art";
 
 type Pick = { id: string; name: string; list: string; cityRank: number; nationalRank: number | null; lift: number | null; popularity: number | null; syllables: number; score: number; shared: boolean; postcard: boolean; rising: boolean; warning: string | null; warningReason: string | null; evidence: string; labels: string[]; tagNames: string[] };
@@ -59,7 +60,9 @@ export default function Page() {
   const output = useMemo(() => {
     if (!res?.joke || !slot) return null;
     const name = chosen?.name ?? slot.text;
-    return { before: res.joke.slice(0, slot.start), name, after: res.joke.slice(slot.end), text: res.joke.slice(0, slot.start) + name + res.joke.slice(slot.end) };
+    const all = swapAll(res.joke, slot.text, name);
+    const parts = all.parts.some((p) => p.swap) ? all.parts : [{ text: res.joke.slice(0, slot.start) }, { text: name, swap: true }, { text: res.joke.slice(slot.end) }];
+    return { parts, name, text: parts.map((p) => p.text).join("") };
   }, [res, slot, chosen]);
 
   async function togglePlain(on: boolean) {
@@ -175,7 +178,9 @@ export default function Page() {
         <section className={`card stage screen ${dir}`} aria-labelledby="h-reveal">
           <h1 id="h-reveal" ref={headRef} tabIndex={-1} className="kicker">Tonight in {res.city}, say it like this</h1>
           <p className="joke" ref={outRef} aria-live="polite" aria-label={`Result: ${output.text}`}>
-            {output.before}<span className="swapwrap" key={output.name}><span className="old" aria-hidden="true">{slot.text}</span><span className={copied === "Copied." ? "swap pulse" : "swap"}>{output.name}</span></span>{output.after}
+            {output.parts.map((p, i) => p.swap
+              ? <span className="swapwrap" key={output.name + i}><span className="old" aria-hidden="true">{slot.text}</span><span className={copied === "Copied." ? "swap pulse" : "swap"}>{p.text}</span></span>
+              : <span key={i}>{p.text}</span>)}
           </p>
           {res.punchHint && <p className="banner warn">This name sits far from your punchline. It adds recognition, maybe not the laugh.</p>}
           {!res.selectedId && <p className="banner warn">{res.onlyShared ? `Only shared picks for ${res.city}. Your call.` : "No pick is pre-selected. Your call."}</p>}

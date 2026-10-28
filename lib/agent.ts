@@ -4,7 +4,7 @@ import type { LlmFn, Msg, ToolDef } from "./llm";
 import { getCountryPacks, getNational, getPack, verifyLocality } from "./packs";
 import type { Slot, Warning } from "./rank";
 import { finalize, listFor, shortlist } from "./rank";
-import { locate, stitch } from "./stitch";
+import { locate, stitch, swapAll } from "./stitch";
 import { codeFlag } from "./flags";
 import type { Flag, Pick } from "./types";
 
@@ -102,6 +102,12 @@ export function rankSlot(city: CityDef, slot: FoundSlot, popularityFloor?: numbe
   return { kind: "ok" as const, ...sl, locality: pack.localities[list] ?? null };
 }
 
+/** All mentions of the slot, with article fixes. Falls back to the one located span if the text is not a whole word. */
+export function swapOut(joke: string, slot: { text: string; start: number; end: number }, name: string): string {
+  const all = swapAll(joke, slot.text, name);
+  return all.parts.some((p) => p.swap) ? all.text : stitch(joke, slot.start, slot.end, name);
+}
+
 function build(joke: string, city: CityDef, slots: FoundSlot[], idx: number, cands: Pick[], warnings: Warning[], extra: { roleLoose: boolean; locality: string | null; meanToLocals: boolean }): Result {
   const slot = slots[idx];
   const codeW: Warning[] = cands.map((c) => ({ c, f: codeFlag(c.name + " " + c.tagNames.join(" ")) })).filter((x) => x.f).map((x) => ({ id: x.c.id, flag: x.f as Flag, reason: `Name or tags touch ${x.f}.` }));
@@ -110,7 +116,7 @@ function build(joke: string, city: CityDef, slots: FoundSlot[], idx: number, can
   const sel = picks.find((p) => p.id === selectedId);
   return {
     status: "ok", joke, city: city.name, slots, slotIndex: idx, picks, selectedId,
-    output: sel ? stitch(joke, slot.start, slot.end, sel.name) : joke,
+    output: sel ? swapOut(joke, slot, sel.name) : joke,
     punchHint: !slot.nearPunch, roleLoose: extra.roleLoose, onlyShared, fewer: picks.length < 3, locality: extra.locality, meanToLocals: extra.meanToLocals,
   };
 }
@@ -180,5 +186,5 @@ export async function plainSwap(joke: string, city: CityDef, slot: FoundSlot, ll
   const raw = use && use.type === "tool_use" ? String(use.input.name ?? "") : t && t.type === "text" ? t.text : "";
   const name = raw.trim().split("\n")[0].replace(/^["'“]+|["'”.]+$/g, "");
   if (!name || name.length > 60 || name.split(/\s+/).length > 8 || /\?/.test(name)) throw new Error("bad llm output");
-  return { name, output: stitch(joke, slot.start, slot.end, name) };
+  return { name, output: swapOut(joke, slot, name) };
 }

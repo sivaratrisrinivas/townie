@@ -24,3 +24,41 @@ export function singleSpanDiff(a: string, b: string): { prefix: number; suffix: 
   while (s < a.length - p && s < b.length - p && a[a.length - 1 - s] === b[b.length - 1 - s]) s++;
   return { prefix: p, suffix: s };
 }
+
+/** "a" or "an" for a name, by its first sound. Acronym letters like "H MART" or "FBI" read by letter name. */
+export function articleFor(name: string): "a" | "an" {
+  const w = name.trim().replace(/^[^A-Za-z0-9]+/, "");
+  const first = w.split(/[\s-]/)[0] ?? "";
+  if (/^[A-Z]{1,4}$/.test(first) || /^[A-Z]{2,}$/.test(first.replace(/[^A-Za-z]/g, "")) && first.length <= 5) return /^[AEFHILMNORSX]/.test(first) ? "an" : "a";
+  if (/^(uni|use|usu|eu|one|once|ubi)/i.test(w)) return "a";
+  if (/^(hour|honest|honor|heir)/i.test(w)) return "an";
+  if (/^8|^11|^18/.test(w)) return "an";
+  return /^[aeiou]/i.test(w) ? "an" : "a";
+}
+
+export interface Part { text: string; swap?: boolean }
+
+/**
+ * TN-FIX3: swap EVERY whole-word occurrence of the slot so callbacks still land, and fix the
+ * article right before each swap ("an Applebee's bag" -> "a Del Taco bag"). Nothing else changes.
+ */
+export function swapAll(joke: string, text: string, name: string): { parts: Part[]; text: string } {
+  const parts: Part[] = [];
+  const esc = text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = new RegExp(`(?<![\\p{L}\\p{N}])${esc}(?![\\p{L}\\p{N}])`, "gu");
+  let last = 0;
+  for (const m of joke.matchAll(re)) {
+    let before = joke.slice(last, m.index);
+    before = before.replace(/(^|[^\p{L}])(a|an|A|An|AN)(\s+)$/u, (_, pre, art, sp) => {
+      const want = articleFor(name);
+      const cased = art[0] === art[0].toUpperCase() ? want[0].toUpperCase() + want.slice(1) : want;
+      return pre + cased + sp;
+    });
+    if (before) parts.push({ text: before });
+    parts.push({ text: name, swap: true });
+    last = m.index! + m[0].length;
+  }
+  if (last < joke.length) parts.push({ text: joke.slice(last) });
+  if (!parts.some((p) => p.swap)) return { parts: [{ text: joke }], text: joke };
+  return { parts, text: parts.map((p) => p.text).join("") };
+}

@@ -17,6 +17,17 @@ const CATS = {
 };
 // D13: grocery folds into retail. Fetched as its own list so lift compares like with like.
 const GROCERY_TAG = { "United States": "urn:tag:wikipedia_category:supermarkets_of_the_united_states", India: "urn:tag:wikipedia_category:supermarkets_of_india" };
+// TN-FIX3: per-city sub-category lists so a pizza joke can find a local pizza brand (US only; Qloo wikipedia tags).
+const SUB_TAGS = {
+  pizza: "pizza_chains_of_the_united_states",
+  mexican: "fast_food_mexican_restaurants",
+  coffee: "coffee_houses_of_the_united_states",
+  sitdown: "steakhouses_in_the_united_states",
+  burger: "hamburger_restaurants",
+  chicken: "chicken_chains_of_the_united_states",
+  bigbox: "discount_stores_of_the_united_states",
+  pharmacy: "pharmacies_of_the_united_states",
+};
 const slug = (s) => s.replace(/\s+/g, "_");
 
 if (fs.existsSync(path.join(OUT, "manifest.json")) && !process.env.FORCE_PACKS) {
@@ -72,7 +83,7 @@ async function pool(tasks, n = 4) {
 }
 
 const packs = {};
-for (const c of [...US, ...IN]) packs[c] = { city: c, country: US.includes(c) ? "United States" : "India", lists: {}, localities: {} };
+for (const c of [...US, ...IN]) packs[c] = { city: c, country: US.includes(c) ? "United States" : "India", lists: {}, localities: {}, subs: {} };
 const national = {};
 
 const tasks = [];
@@ -93,6 +104,10 @@ for (const [country, cities] of [["United States", US], ["India", IN]]) {
     packs[city].lists.grocery = (j?.results?.entities ?? []).map(slim);
   });
 }
+for (const city of US) for (const [sub, tag] of Object.entries(SUB_TAGS)) tasks.push(async () => {
+  const j = await q({ "filter.type": "urn:entity:brand", "filter.tags": `urn:tag:wikipedia_category:${tag}`, "signal.location.query": city });
+  packs[city].subs[sub] = (j?.results?.entities ?? []).map(slim);
+});
 for (const city of RESTAURANT_CITIES) tasks.push(async () => {
   const j = await q({ "filter.type": "urn:entity:place", "filter.tags": "urn:tag:genre:place:restaurant", "filter.location.query": city, "signal.location.query": city });
   packs[city].localities.restaurant = disamb(j);

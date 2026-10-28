@@ -1,6 +1,7 @@
 import type { Category } from "./cities";
 import type { Flag, Item, ListKey, Pack, Pick } from "./types";
 import { countSyllables, hardEnding } from "./syllables";
+import { itemSubs, NEAR, slotSub, type Sub } from "./subcat";
 
 // D18 soft weights. Sum is 1.00 (AC26).
 export const WEIGHTS = { popularity: 0.3, lift: 0.3, syllables: 0.15, stress: 0.1, nonCliche: 0.1, sayable: 0.05 } as const;
@@ -23,7 +24,9 @@ export interface Slot {
   isLastWord: boolean;
 }
 
-export function listFor(slot: { category: Category; roleKeywords: string[] }): ListKey {
+export function listFor(slot: { category: Category; roleKeywords: string[]; text?: string; role?: string }): ListKey {
+  const sub = slot.category === "retail" ? slotSub({ text: slot.text ?? "", role: slot.role ?? "", roleKeywords: slot.roleKeywords }) : null;
+  if (sub === "bigbox" || sub === "pharmacy") return "retail"; // TN-FIX3: Costco is a big box, not a grocer
   if (slot.category === "retail" && slot.roleKeywords.some((k) => /grocer|supermarket/.test(k))) return "grocery";
   return slot.category;
 }
@@ -52,6 +55,29 @@ export function risingCut(items: Item[]): number {
   return cut > 0 ? cut : Infinity; // nothing is "rising" if growth is flat
 }
 
+const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "_");
+/** TN-FIX3: drop items Qloo itself places in some other city (Eggslut is an LA spot, not an NYC one). */
+export function isOutOfTown(it: Item, city: string, locality: string | null | undefined): boolean {
+  const homes = it.tags.map((t) => /restaurants_in_(.+)$/.exec(t)?.[1]).filter((x): x is string => !!x);
+  if (!homes.length) return false;
+  const here = [slugify(city), ...(locality ?? "").split(",").map((x) => slugify(x.trim())).filter((x) => x && x !== "united_states")];
+  if (city === "New York City") here.push("new_york");
+  return !homes.some((h) => here.some((x) => h.includes(x)));
+}
+
+/** TN-FIX3: keep only candidates that do the same job as the original. Exact sub first, then a near one. */
+export function fitSub(items: Item[], sub: Sub | null): { items: Item[]; fit: "exact" | "near" | "none" | "any" } {
+  if (!sub) return { items, fit: "any" };
+  // A delivery app stands in for "food I didn't cook": any savory takeout, not a cupcake or a latte.
+  if (sub === "delivery") return { items: items.filter((i) => { const s = itemSubs(i); return !s.has("sweets") && !s.has("coffee"); }), fit: "any" };
+  const exact = items.filter((i) => itemSubs(i).has(sub));
+  if (exact.length) return { items: exact, fit: "exact" };
+  const near = NEAR[sub] ?? [];
+  const n = items.filter((i) => near.some((x) => itemSubs(i).has(x)));
+  if (n.length) return { items: n, fit: "near" };
+  return { items: [], fit: "none" };
+}
+
 export interface ShortlistInput {
   pack: Pack;
   countryPacks: Pack[];
@@ -69,7 +95,15 @@ export interface Shortlist {
 export function shortlist({ pack, countryPacks, national, slot, popularityFloor = POPULARITY_FLOOR }: ShortlistInput): Shortlist {
   const list = listFor(slot);
   const isRestaurant = list === "restaurant";
-  let items = (pack.lists[list] ?? []).filter((i) => norm(i.name) !== norm(slot.text) && i.isClosed !== true); // Q1 closed guard
+  const sub = isRestaurant || slot.category === "tv" ? null : slotSub(slot);
+  let pool = pack.lists[list] ?? [];
+  // A big box or pharmacy can also be found on the city's grocery list (superstores, discount grocers).
+  if (sub === "bigbox" || sub === "pharmacy") pool = [...pool, ...(pack.lists.grocery ?? []).filter((g) => !pool.some((x) => x.id === g.id))];
+  // Qloo's own sub-category list for this city (for example pizza chains in Los Angeles).
+  const mainIds = new Set(pool.map((x) => x.id));
+  if (sub && pack.subs?.[sub]?.length) pool = [...pool, ...pack.subs[sub]!.filter((g) => !pool.some((x) => x.id === g.id))];
+  let items = pool.filter((i) => norm(i.name) !== norm(slot.text) && i.isClosed !== true); // Q1 closed guard
+  items = items.filter((i) => !isOutOfTown(i, pack.city, pack.localities[list]));
   if (isRestaurant) {
     items = items.filter((i) => !isRestaurantDropped(i)); // AC20
     items = [...items].sort((a, b) => (b.popularity ?? 0) - (a.popularity ?? 0) || (b.affinity ?? 0) - (a.affinity ?? 0));
@@ -79,12 +113,19 @@ export function shortlist({ pack, countryPacks, national, slot, popularityFloor 
 
   const kws = slot.roleKeywords.map((k) => k.toLowerCase()).filter(Boolean);
   let roleLoose = false;
-  if (kws.length && !isRestaurant) {
+  if (sub) {
+    const f = fitSub(items, sub);
+    items = f.items;
+    roleLoose = f.fit === "near";
+  } else if (kws.length && !isRestaurant) {
     const matched = items.filter((i) => i.tags.some((t) => kws.some((k) => t.includes(k))));
     if (matched.length) items = matched;
     else roleLoose = true;
   }
-  items = items.filter((i) => i.popularity === null || i.popularity >= popularityFloor);
+  const above = (xs: Item[], f: number) => xs.filter((i) => i.popularity === null || i.popularity >= f);
+  // TN-FIX3: a right-kind local pick a little under the floor beats a wrong-kind one (Chuy's for Chipotle in Austin).
+  if (sub && !above(items, popularityFloor).length && !roleLoose) items = above(items, popularityFloor - 0.2);
+  else items = above(items, popularityFloor);
 
   const shared = isRestaurant ? new Set<string>() : sharedIds(countryPacks, list);
   const rcut = risingCut(pack.lists[list] ?? []);
@@ -97,7 +138,8 @@ export function shortlist({ pack, countryPacks, national, slot, popularityFloor 
     const cityRank = cityRankOf.get(it.id)!;
     const isShared = shared.has(it.id);
     const nr = isRestaurant ? null : natRank.get(it.id) ?? 51;
-    const lift = isRestaurant || isShared || nr === null ? null : nr - cityRank;
+    const subOnly = !mainIds.has(it.id); // ranked inside Qloo's sub-category list, so no fair lift
+    const lift = isRestaurant || isShared || nr === null || subOnly ? null : nr - cityRank;
     const postcard = isPostcard(it);
     const rising = typeof it.growth === "number" && it.growth >= rcut;
     const syl = countSyllables(it.name);
@@ -114,6 +156,7 @@ export function shortlist({ pack, countryPacks, national, slot, popularityFloor 
     const country = pack.country;
     const evidence = isRestaurant
       ? `Popular in ${pack.city} (top ${cityRank}).`
+      : subOnly ? `#${cityRank} of its kind in ${pack.city} on Qloo.`
       : `#${cityRank} in ${pack.city}, ${nr === 51 ? "outside top 50" : "#" + nr} in ${country}.`;
     const labels: string[] = [];
     if (isShared) labels.push(`Shared pick, popular across ${country}`);

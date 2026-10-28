@@ -13,7 +13,7 @@ export async function POST(req: Request) {
   const joke = (b.joke ?? "").replace(/\r\n/g, "\n");
   const city = resolveCity(b.city ?? "");
   if (!city) return json({ status: "error", message: "Couldn't load the plain version." }, 400);
-  const raw = await get(`r:${hash(joke, city.name)}`);
+  const raw = await get(`r2:${hash(joke, city.name)}`);
   const r = raw ? (JSON.parse(raw) as Result) : null;
   // The store is per instance without Upstash, so the cached run may live on another instance.
   // Fall back to the slot the client was shown, after checking it really is in the joke.
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
   if (!r && !slot) return json({ status: "error", message: "Run Townie on this joke first." }, 400);
   if (!slot) return json({ status: "error", message: "Unknown slot." }, 400);
 
-  const key = `p:${hash(joke, city.name, String(idx))}`;
+  const key = `p2:${hash(joke, city.name, String(idx))}`;
   const hit = await get(key);
   if (hit) return json({ ...JSON.parse(hit), cached: true });
   if (!(await takeVisitor(ipOf(req), "plain"))) return json({ status: "rate_limited", message: "You've used today's free runs. Examples and cached jokes still work." }, 429);
