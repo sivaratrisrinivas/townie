@@ -10,6 +10,7 @@ describe("TN-FIX4 local angle", () => {
     expect(jokeTopic("Stuck in traffic for three hours on the flyover")).toBe("commute");
     expect(jokeTopic("I had biryani for breakfast")).toBe("food_ritual");
     expect(jokeTopic("My uncle is a dentist.")).toBeNull();
+    expect(jokeTopic("In traffic I started a podcast at the signal. Then I ordered lunch and it reached first.", "dining")).toBe("commute");
     expect(jokeTopic("The staff at Applebee's know me.", "dining")).toBe("food_ritual");
   });
   it("picks by category, then spread, then full_text", () => {

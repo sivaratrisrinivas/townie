@@ -22,7 +22,10 @@ const words = (s: string) => new Set(s.toLowerCase().match(/[a-z]{4,}/g) ?? []);
 export function jokeTopic(joke: string, slotCategory?: string): string | null {
   let best: string | null = null, bestN = 0;
   for (const [cat, re] of TOPICS) {
-    let k = (joke.match(new RegExp(re.source, "gi")) ?? []).length;
+    // The premise (first sentence) sets the topic, so its words count double. A dining swap nudges food.
+    const first = joke.split(/(?<=[.!?])\s/)[0] ?? joke;
+    const hits = (x: string) => (x.match(new RegExp(re.source, "gi")) ?? []).length;
+    let k = hits(joke) + hits(first);
     if (cat === "food_ritual" && (slotCategory === "dining" || slotCategory === "restaurant")) k += 1;
     if (k > bestN) { best = cat; bestN = k; }
   }
