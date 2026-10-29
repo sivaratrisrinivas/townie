@@ -28,24 +28,23 @@ export async function GET(req: Request) {
   ];
   const types = ["brand","place","artist","movie","tv_show","book","podcast","videogame","destination","person","locality"];
   if (part === "b") paths = types.map((t) => `/v2/insights?filter.type=urn:entity:${t}&signal.location.query=Austin&take=3`);
-  if (part === "c") {
-    const s = (await q("/search?query=Whole%20Foods%20Market&take=1")) as { body: { results?: { entity_id: string }[] } };
-    const s2 = (await q("/search?query=Trader%20Joe%27s&take=1")) as { body: { results?: { entity_id: string }[] } };
-    const id = s.body?.results?.[0]?.entity_id ?? ""; const id2 = s2.body?.results?.[0]?.entity_id ?? "";
-    paths = [
-      `/entities?entity_ids=${id}`,
-      `/v2/insights?filter.type=urn:demographics&signal.interests.entities=${id}`,
-      `/v2/insights?filter.type=urn:heatmap&${L}&signal.interests.entities=${id}`,
-      `/v2/insights?filter.type=urn:tag&signal.interests.entities=${id}&take=5`,
-      `/v2/insights?filter.type=urn:entity:place&${L}&signal.interests.entities=${id}&take=3`,
-      `/v2/insights?filter.type=urn:entity:brand&signal.location.query=Austin&signal.demographics.age=35_and_younger&take=3`,
-      `/v2/insights/compare?a.signal.interests.entities=${id}&b.signal.interests.entities=${id2}&take=5`,
-      `/v2/trending?filter.type=urn:entity:brand&signal.interests.entities=${id}&filter.start_date=2026-07-01&filter.end_date=2026-10-01`,
-      `/v2/trending?filter.type=urn:entity:brand&take=5`,
-      `/v2/insights?filter.type=urn:entity:locality&signal.interests.entities=${id}&take=3`,
-      `/v2/insights?filter.type=urn:entity:place&filter.location.query=Austin&filter.tags=urn:tag:genre:place:restaurant:barbecue&take=3`,
-    ];
-  }
-  const out = await Promise.all(paths.map(q));
+  const W = "1E5D90F5-5E0D-4486-B651-D0E7B8A6BE23", F = "CE9EE2BD-D7AE-4349-B627-3D051D98AE77";
+  if (part === "c") paths = [
+    `/entities?entity_ids=${W}`,
+    `/v2/insights?filter.type=urn:demographics&signal.interests.entities=${W}`,
+    `/v2/insights?filter.type=urn:heatmap&${L}&signal.interests.entities=${W}`,
+    `/v2/insights?filter.type=urn:tag&signal.interests.entities=${W}&take=5`,
+    `/v2/insights?filter.type=urn:entity:destination&signal.location.query=Austin&take=3`,
+    `/v2/insights?filter.type=urn:entity:locality&signal.interests.entities=${F}&take=5`,
+  ];
+  if (part === "d") paths = [
+    `/v2/insights/compare?a.signal.interests.entities=${W}&b.signal.interests.entities=${F}&take=5`,
+    `/v2/trending?filter.type=urn:entity:brand&signal.interests.entities=${W}&filter.start_date=2026-07-01&filter.end_date=2026-10-01`,
+    `/v2/trending?filter.type=urn:entity:brand&take=5`,
+    `/v2/insights?filter.type=urn:entity:place&${L}&filter.tags=urn:tag:genre:place:restaurant:barbecue&take=3`,
+    `/v2/insights?filter.type=urn:entity:brand&signal.location.query=Austin&signal.demographics.age=35_and_younger&take=3`,
+    `/v2/insights?filter.type=urn:tag&signal.location.query=Austin&take=8`,
+  ];
+  const out = []; for (const x of paths) { out.push(await q(x)); await new Promise((r) => setTimeout(r, 2500)); }
   return Response.json(out.map((o) => ({ ...o, body: trim(o.body) })));
 }
