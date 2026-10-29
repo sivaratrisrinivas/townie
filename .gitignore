@@ -21,3 +21,5 @@ ive-assets*
 .feedback-token
 local/*.json
 local/*.log
+local/*.png
+local/*.md
