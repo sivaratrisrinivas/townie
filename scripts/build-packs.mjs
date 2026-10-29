@@ -128,9 +128,8 @@ for (const city of [...US, ...IN]) {
     const desi = (e) => (e.tags ?? []).some((t) => /:music:|:media:/.test(t.id ?? "") && DESI.test(t.id ?? ""));
     const local = pk.country === "India" && cat === "music" ? merged.filter(desi) : merged;
     const final = local.length >= 12 ? local : merged;
-    merged.length = 0; merged.push(...final);
-    pk.lists[cat] = merged.map(slim);
-    console.log(`[packs] ${city} ${cat}: scene ${scene.length} (${tags.join("|") || "no tag"}), kept ${merged.length}; top: ${merged.slice(0, 5).map((e) => e.name).join(", ")}`);
+    pk.lists[cat] = final.map(slim);
+    console.log(`[packs] ${city} ${cat}: scene ${scene.length} (${tags.join("|") || "no tag"}), kept ${final.length}; top: ${final.slice(0, 5).map((e) => e.name).join(", ")}`);
   }
 }
 if (okCalls < 40) {
