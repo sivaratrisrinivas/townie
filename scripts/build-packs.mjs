@@ -22,6 +22,13 @@ const SCENE = {
   Boston: ["boston"], Mumbai: ["bollywood", "marathi"], Delhi: ["punjabi", "bhangra"], Bengaluru: ["kannada", "sandalwood"],
   Hyderabad: ["telugu", "tollywood"], Chennai: ["tamil", "kollywood"], Kolkata: ["bengali", "rabindra sangeet"], Pune: ["marathi"],
 };
+// Screen words: Qloo keyword tags for the city's own film industry (people and TV).
+const SCREEN = { Mumbai: ["hindi cinema", "marathi cinema"], Delhi: ["punjabi cinema", "hindi cinema"], Bengaluru: ["kannada cinema"], Hyderabad: ["telugu cinema"], Chennai: ["tamil cinema"], Kolkata: ["bengali cinema"], Pune: ["marathi cinema"] };
+// Off-language: a name tagged only with another Indian language's music or cinema does not land here.
+const OWN = { Mumbai: ["hindi", "bollywood", "marathi"], Delhi: ["hindi", "bollywood", "punjabi"], Bengaluru: ["kannada", "sandalwood"], Hyderabad: ["telugu", "tollywood"], Chennai: ["tamil", "kollywood"], Kolkata: ["bengali", "bangla"], Pune: ["marathi", "hindi", "bollywood"] };
+const LANGS = ["hindi", "bollywood", "marathi", "punjabi", "kannada", "sandalwood", "telugu", "tollywood", "tamil", "kollywood", "malayalam", "mollywood", "bengali", "bangla", "bhojpuri", "gujarati"];
+const langsOf = (e) => new Set((e.tags ?? []).map((t) => (t.id ?? "").toLowerCase()).filter((id) => /:music:|:media:|cinema|film/.test(id)).flatMap((id) => LANGS.filter((l) => id.includes(l))));
+const offLanguage = (city, e) => { const own = OWN[city]; if (!own) return false; const ls = langsOf(e); return ls.size > 0 && ![...ls].some((l) => own.includes(l)); };
 const political = (e) => !!e.properties?.position_held || (e.tags ?? []).some((t) => /politic|government|legislat|senator|governor|mayor/.test(t.id ?? ""));
 
 if (fs.existsSync(path.join(OUT, "manifest.json")) && !process.env.FORCE_PACKS) {
@@ -73,8 +80,16 @@ for (const c of [...US, ...IN]) packs[c] = { city: c, country: US.includes(c) ? 
 
 for (const [cat, p] of Object.entries(CATS)) for (const country of ["United States", "India"]) national[`${cat}|${country}`] = ents(await q({ ...p, "signal.location.query": country }), cat);
 
+for (const [city, words] of Object.entries(SCREEN)) for (const w of words) {
+  const j = await get("tags", { "filter.query": w, take: "10" });
+  const ids = (j?.results?.tags ?? []).map((t) => t.id ?? t.tag_id).filter(Boolean);
+  const key = w.split(" ")[0];
+  const hit = ids.find((id) => id.includes(key) && /cinema|film|media/.test(id) && !/place|cuisine|dish/.test(id));
+  (screenTags[city] ??= []).push(...(hit ? [hit] : []));
+  sceneLog[`${city}|${w}`] = ids.slice(0, 6);
+}
 // Scene tags: Qloo's own tag ids for each city's words. Music tags filter musicians; other matches filter TV and people.
-const sceneTags = {};
+const sceneTags = {}, screenTags = {};
 for (const [city, words] of Object.entries(SCENE)) {
   sceneTags[city] = { music: [], other: [] };
   for (const w of words) {
@@ -83,7 +98,6 @@ for (const [city, words] of Object.entries(SCENE)) {
     const key = w.split(" ")[0].toLowerCase();
     const rel = ids.filter((id) => id.toLowerCase().includes(key));
     sceneTags[city].music.push(...rel.filter((id) => /:music/.test(id)).slice(0, 2));
-    sceneTags[city].other.push(...rel.filter((id) => !/:music/.test(id) && /genre|language|category/.test(id)).slice(0, 2));
     sceneLog[`${city}|${w}`] = ids.slice(0, 10);
   }
 }
@@ -96,17 +110,18 @@ for (const city of [...US, ...IN]) {
     pk.localities[cat] = disamb(j);
     let base = ents(j, cat);
     // Scene-filtered list first (most local), then the plain city list.
-    const tags = cat === "music" ? sceneTags[city].music : sceneTags[city].other;
+    const tags = cat === "music" ? sceneTags[city].music : screenTags[city] ?? [];
     let scene = [];
-    if (tags.length) {
-      const sj = await q({ ...p, "filter.tags": tags.join(","), "signal.location.query": city, take: "30" });
-      scene = ents(sj, cat);
+    // One call per tag: Qloo treats a comma list as a match on any, but keep each scene list short and local.
+    for (const t of tags) {
+      const sj = await q({ ...p, "filter.tags": t, "signal.location.query": city, take: "25" });
+      scene.push(...ents(sj, cat));
     }
     // Drop clearly global picks: for India, anything in the US national list; for the US, the national top 10.
     const nat = new Map(national[`${cat}|United States`].map((e, i) => [e.entity_id, i]));
     const global = (e) => (pk.country === "India" ? nat.has(e.entity_id) || (cat === "music" && usNat.has(e.entity_id)) : (nat.get(e.entity_id) ?? 99) < 10);
     const seen = new Set();
-    const merged = [...scene, ...base].filter((e) => !global(e) && !seen.has(e.entity_id) && seen.add(e.entity_id));
+    const merged = [...scene, ...base].filter((e) => !global(e) && !offLanguage(city, e) && !seen.has(e.entity_id) && seen.add(e.entity_id));
     pk.lists[cat] = merged.map(slim);
     console.log(`[packs] ${city} ${cat}: scene ${scene.length} (${tags.join("|") || "no tag"}), kept ${merged.length}; top: ${merged.slice(0, 5).map((e) => e.name).join(", ")}`);
   }
@@ -115,6 +130,7 @@ if (okCalls < 40) {
   console.log(`[packs] only ${okCalls} Qloo calls succeeded; not writing packs (check QLOO_API_KEY).`);
   process.exit(0);
 }
+console.log(`[packs] screen tags ${JSON.stringify(screenTags)}`);
 for (const [k, v] of Object.entries(sceneLog)) console.log(`[packs] tags ${k}: ${v.join(" ")}`);
 
 fs.mkdirSync(OUT, { recursive: true });
