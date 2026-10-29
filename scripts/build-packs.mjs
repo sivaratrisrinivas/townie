@@ -29,6 +29,7 @@ const OWN = { Mumbai: ["hindi", "bollywood", "marathi"], Delhi: ["hindi", "bolly
 const LANGS = ["hindi", "bollywood", "marathi", "punjabi", "kannada", "sandalwood", "telugu", "tollywood", "tamil", "kollywood", "malayalam", "mollywood", "bengali", "bangla", "bhojpuri", "gujarati"];
 const langsOf = (e) => new Set((e.tags ?? []).map((t) => (t.id ?? "").toLowerCase()).filter((id) => /:music:|:media:|cinema|film/.test(id)).flatMap((id) => LANGS.filter((l) => id.includes(l))));
 const offLanguage = (city, e) => { const own = OWN[city]; if (!own) return false; const ls = langsOf(e); return ls.size > 0 && ![...ls].some((l) => own.includes(l)); };
+const DESI = /indian|indi_pop|desi|filmi|bollywood|tollywood|kollywood|sandalwood|punjabi|bhangra|hindi|tamil|telugu|kannada|bengali|bangla|marathi|malayalam|carnatic|hindustani|ghazal|qawwali|sufi|rabindra|bhajan/;
 const political = (e) => !!e.properties?.position_held || (e.tags ?? []).some((t) => /politic|government|legislat|senator|governor|mayor/.test(t.id ?? ""));
 
 if (fs.existsSync(path.join(OUT, "manifest.json")) && !process.env.FORCE_PACKS) {
@@ -123,6 +124,11 @@ for (const city of [...US, ...IN]) {
     const global = (e) => (pk.country === "India" ? nat.has(e.entity_id) || (cat === "music" && usNat.has(e.entity_id)) : (nat.get(e.entity_id) ?? 99) < 10);
     const seen = new Set();
     const merged = [...scene, ...base].filter((e) => !global(e) && !offLanguage(city, e) && !seen.has(e.entity_id) && seen.add(e.entity_id));
+    // India music: keep only names Qloo tags with an Indian scene, so Coldplay or Shakira cannot stand in for a local.
+    const desi = (e) => (e.tags ?? []).some((t) => DESI.test(t.id ?? ""));
+    const local = pk.country === "India" && cat === "music" ? merged.filter(desi) : merged;
+    const final = local.length >= 12 ? local : merged;
+    merged.length = 0; merged.push(...final);
     pk.lists[cat] = merged.map(slim);
     console.log(`[packs] ${city} ${cat}: scene ${scene.length} (${tags.join("|") || "no tag"}), kept ${merged.length}; top: ${merged.slice(0, 5).map((e) => e.name).join(", ")}`);
   }
