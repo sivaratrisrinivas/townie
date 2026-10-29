@@ -38,3 +38,13 @@ describe("TN-NICHE3", () => {
     for (const c of ["Austin", "Mumbai", "Bengaluru", "Chennai"]) expect(pickAngle(c, "I am so old my first concert was Bon Jovi.", "music")).not.toBeNull();
   });
 });
+
+describe("TN-LOCAL angle matches the swap", () => {
+  it("music swap gets a music line, star swap gets a screen line, no other fallback", async () => {
+    const { pickAngle } = await import("@/lib/localAngle");
+    expect(pickAngle("Bengaluru", "My first concert was Bon Jovi.", "music")?.category).toBe("music");
+    expect(pickAngle("Chennai", "My uncle thinks Tom Cruise is a role model.", "celeb")?.category).toBe("screen");
+    expect(pickAngle("Mumbai", "My cousin watches The Kardashians.", "tv")?.category).toBe("screen");
+    expect(pickAngle("Austin", "My uncle is a dentist.")).toBeNull();
+  });
+});
