@@ -6,7 +6,7 @@ function slim(e: E) {
   const p = e.properties ?? {};
   return {
     n: e.name, id: e.entity_id, t: (e.types ?? []).join(","), s: e.query?.affinity ?? e.popularity,
-    ctry: p.country ?? p.geocode?.country_code ?? e.location?.country ?? p.address?.split(",").slice(-1)[0],
+    rc: p.release_country, fl: p.filming_location, ext: Object.keys(p.external ?? {}).join(","), ctry: p.country ?? p.geocode?.country_code ?? e.location?.country ?? p.address?.split(",").slice(-1)[0],
     addr: p.address, lang: p.language ?? p.languages ?? p.original_language,
     rel: p.release_year ?? p.release_date ?? p.publication_year, orig: p.origin ?? p.hometown ?? p.place_of_birth,
     keys: Object.keys(p).join(","),
