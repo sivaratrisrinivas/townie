@@ -29,7 +29,7 @@ const SUB_TAGS = {
   pharmacy: "pharmacies_of_the_united_states",
 };
 // TN-NICHE: entertainment lists (musicians and non-political famous people) for every city.
-const NICHE = process.env.TOWNIE_NICHE === "entertainment" || process.env.VERCEL_GIT_COMMIT_REF === "niche-exp";
+const NICHE = true; // entertainment lists ship for every city
 const NICHE_CATS = {
   music: { "filter.type": "urn:entity:artist" },
   celeb: { "filter.type": "urn:entity:person" },

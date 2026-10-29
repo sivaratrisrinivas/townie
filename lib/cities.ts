@@ -63,7 +63,7 @@ export function resolveCity(input: string): CityDef | null {
 }
 
 export function shippedNote(c: CityDef): string | null {
-  if (!NICHE && c.ships.length === ALL.length) return null;
+  if (NICHE || c.ships.length === ALL.length) return null; // every city ships the same entertainment set
   const parts = c.ships.map((s) => CATEGORY_LABEL[s]);
   const list = parts.length > 1 ? parts.slice(0, -1).join(", ") + " and " + parts.at(-1) : parts[0];
   return `${c.name}: ${list} only for now.`;

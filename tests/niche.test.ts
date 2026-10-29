@@ -16,7 +16,7 @@ describe("niche flag", () => {
   it("ships music, celeb and tv only, and says so for shops", () => {
     expect(cities.CITIES.every((c) => c.ships.join() === "music,celeb,tv")).toBe(true);
     const austin = cities.CITIES.find((c) => c.name === "Austin")!;
-    expect(cities.shippedNote(austin)).toMatch(/musicians/);
+    expect(cities.shippedNote(austin)).toBeNull();
   });
   it("swaps a musician from the city music list", () => {
     const music = [item("wn", 1, { name: "Willie Nelson", popularity: 0.95 }), item("gc", 2, { name: "Gary Clark Jr.", popularity: 0.9 })];

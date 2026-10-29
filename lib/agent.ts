@@ -104,7 +104,7 @@ export function toSlots(joke: string, raw: RawSlot[]): FoundSlot[] {
 
 /** Code-only step: rank candidates for a slot in a city. No LLM. */
 export function rankSlot(city: CityDef, slot: FoundSlot, popularityFloor?: number) {
-  if (!city.ships.includes(slot.category)) return { kind: "not_covered" as const, message: shippedNote(city) ?? `${city.name}: not covered for ${CATEGORY_LABEL[slot.category]}.` };
+  if (!city.ships.includes(slot.category)) return { kind: "not_covered" as const, message: shippedNote(city) ?? `${city.name}: Townie only swaps musicians, famous people and TV shows, so Qloo has nothing that fits ${CATEGORY_LABEL[slot.category]}.` };
   const pack = getPack(city.name);
   const list = listFor(slot);
   if (!pack || !(pack.lists[list]?.length)) return { kind: "empty" as const, message: `Qloo has no ${CATEGORY_LABEL[slot.category]} data for ${city.name} yet.` };
