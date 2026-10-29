@@ -8,19 +8,23 @@ export const ANGLE_LABEL = "From local sources, not Qloo";
 const TRUTHS = (data as { items: Truth[] }).items;
 
 // Joke topic -> truth category. Plain word lists; no LLM call.
+// TN-LOCAL: the swap sets the topic first. A musician gets a music line; a star or TV show gets a screen line.
+const SLOT_TOPIC: Record<string, string> = { music: "music", celeb: "screen", tv: "screen" };
 const TOPICS: [string, RegExp][] = [
+  ["music", /\b(concert|gig|band|song|sing\w*|album|playlist|rapper|music|dj|festival)\b/i],
+  ["screen", /\b(watch\w*|show|movie|film|actor|actress|star|tv|netflix|series|binge\w*|celebrity|fan)\b/i],
   ["food_ritual", /\b(eat\w*|ate|food|rib|ribs|bbq|barbecue|biryani|pizza|slice|burger|taco\w*|lunch|dinner|breakfast|brunch|snack\w*|chai|coffee|tea|restaurant|menu\w*|order(ed)?|hungry|diet|salad|guacamole|fries|dosa|vada|pav|kitchen|oven|cook\w*|meal|delivery)\b/i],
   ["commute", /\b(train|local|traffic|commut\w*|bus|metro|subway|drive|driving|car|uber|ola|auto|rickshaw|highway|freeway|parking|signal|flyover|jam|stuck|toll|airport|lane)\b/i],
   ["weather", /\b(rain\w*|heat|hot|humid\w*|cold|snow\w*|monsoon|summer|winter|sweat\w*|weather|degrees|sun)\b/i],
   ["area_tease", /\b(apartment|flat|rent|landlord|suburb\w*|neighbou?rhood|area|moved|move|lives? in|borough|downtown)\b/i],
   ["rivalry", /\b(better than|rival\w*|vs\.?|versus)\b/i],
 ];
-const GENERAL = ["habit", "slang"];
 const SPREAD: Record<string, number> = { high: 3, medium: 2, low: 1 };
 const words = (s: string) => new Set(s.toLowerCase().match(/[a-z]{4,}/g) ?? []);
 
 /** Which truth category the joke is about, or null. A dining swap leans food. */
 export function jokeTopic(joke: string, slotCategory?: string): string | null {
+  if (slotCategory && SLOT_TOPIC[slotCategory]) return SLOT_TOPIC[slotCategory];
   let best: string | null = null, bestN = 0;
   for (const [cat, re] of TOPICS) {
     // The premise (first sentence) sets the topic, so its words count double. A dining swap nudges food.
@@ -36,9 +40,9 @@ export function jokeTopic(joke: string, slotCategory?: string): string | null {
 /** The single best local truth for this city and joke: category, then spread, then verified=full_text, then shared words. */
 export function pickAngle(city: string, joke: string, slotCategory?: string, truths: Truth[] = TRUTHS): Angle | null {
   const topic = jokeTopic(joke, slotCategory);
+  if (!topic) return null;
   const jw = words(joke);
-  // TN-NICHE3: entertainment jokes rarely name a topic, so fall back to the city's general habits and slang.
-  const pool = topic ? truths.filter((t) => t.city === city && t.category === topic) : truths.filter((t) => t.city === city && GENERAL.includes(t.category));
+  const pool = truths.filter((t) => t.city === city && t.category === topic);
   if (!pool.length) return null;
   const score = (t: Truth) => [SPREAD[t.spread] ?? 0, t.verified === "full_text" ? 1 : 0, [...words(t.reference + " " + t.why)].filter((w) => jw.has(w)).length];
   const best = pool.map((t, i) => ({ t, s: score(t), i })).sort((a, b) => b.s[0] - a.s[0] || b.s[1] - a.s[1] || b.s[2] - a.s[2] || a.i - b.i)[0].t;
