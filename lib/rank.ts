@@ -101,7 +101,7 @@ export interface Shortlist {
 export function shortlist({ pack, countryPacks, national, slot, popularityFloor = POPULARITY_FLOOR }: ShortlistInput): Shortlist {
   const list = listFor(slot);
   const isRestaurant = list === "restaurant";
-  const sub = isRestaurant || slot.category === "tv" ? null : slotSub(slot);
+  const sub = isRestaurant || ["tv", "music", "celeb"].includes(slot.category) ? null : slotSub(slot);
   let pool = pack.lists[list] ?? [];
   // A big box or pharmacy can also be found on the city's grocery list (superstores, discount grocers).
   if (sub === "bigbox" || sub === "pharmacy") pool = [...pool, ...(pack.lists.grocery ?? []).filter((g) => !pool.some((x) => x.id === g.id))];

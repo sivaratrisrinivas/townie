@@ -1,4 +1,5 @@
-export type Category = "dining" | "retail" | "tv" | "restaurant";
+import { NICHE } from "./niche";
+export type Category = "dining" | "retail" | "tv" | "restaurant" | "music" | "celeb";
 export type Country = "United States" | "India";
 
 export const CATEGORY_LABEL: Record<Category, string> = {
@@ -6,6 +7,8 @@ export const CATEGORY_LABEL: Record<Category, string> = {
   retail: "retail brands",
   tv: "TV",
   restaurant: "restaurants",
+  music: "musicians",
+  celeb: "stars",
 };
 
 export interface CityDef {
@@ -19,7 +22,7 @@ export interface CityDef {
 const ALL: Category[] = ["dining", "retail", "tv", "restaurant"];
 
 // Ship matrix, DESIGN.md section 7 (D12, D13, D14)
-export const CITIES: CityDef[] = [
+const BASE: CityDef[] = [
   { name: "New York City", country: "United States", ships: ALL, expect: "New York, United States" },
   { name: "Los Angeles", country: "United States", ships: ALL, expect: "California, United States" },
   { name: "Chicago", country: "United States", ships: ALL, expect: "Illinois, United States" },
@@ -35,6 +38,10 @@ export const CITIES: CityDef[] = [
   { name: "Kolkata", country: "India", ships: ["retail"], expect: "India" },
   { name: "Pune", country: "India", ships: ["retail", "restaurant"], expect: "India" },
 ];
+
+// TN-NICHE: every city ships musicians, stars and TV, and nothing else.
+export const NICHE_SHIPS: Category[] = ["music", "celeb", "tv"];
+export const CITIES: CityDef[] = NICHE ? BASE.map((c) => ({ ...c, ships: NICHE_SHIPS })) : BASE;
 
 const ALIASES: Record<string, string> = {
   "new york": "New York City",
@@ -56,7 +63,7 @@ export function resolveCity(input: string): CityDef | null {
 }
 
 export function shippedNote(c: CityDef): string | null {
-  if (c.ships.length === ALL.length) return null;
+  if (!NICHE && c.ships.length === ALL.length) return null;
   const parts = c.ships.map((s) => CATEGORY_LABEL[s]);
   const list = parts.length > 1 ? parts.slice(0, -1).join(", ") + " and " + parts.at(-1) : parts[0];
   return `${c.name}: ${list} only for now.`;

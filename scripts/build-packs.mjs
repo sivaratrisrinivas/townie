@@ -28,6 +28,13 @@ const SUB_TAGS = {
   bigbox: "discount_stores_of_the_united_states",
   pharmacy: "pharmacies_of_the_united_states",
 };
+// TN-NICHE: entertainment lists (musicians and non-political famous people) for every city.
+const NICHE = process.env.TOWNIE_NICHE === "entertainment" || process.env.VERCEL_GIT_COMMIT_REF === "niche-exp";
+const NICHE_CATS = {
+  music: { "filter.type": "urn:entity:artist" },
+  celeb: { "filter.type": "urn:entity:person" },
+};
+const political = (e) => !!e.properties?.position_held || (e.tags ?? []).some((t) => /politic|government|legislat|senator|governor|mayor/.test(t.id ?? ""));
 const slug = (s) => s.replace(/\s+/g, "_");
 
 if (fs.existsSync(path.join(OUT, "manifest.json")) && !process.env.FORCE_PACKS) {
@@ -66,7 +73,7 @@ function slim(e, i) {
     popularity: typeof e.popularity === "number" ? e.popularity : null,
     affinity: e.query?.affinity ?? null,
     growth: e.query?.measurements?.audience_growth ?? null,
-    tags: (e.tags ?? []).map((t) => t.id).filter((t) => /genre|category|cuisine/.test(t)).slice(0, 25),
+    tags: (e.tags ?? []).map((t) => t.id).filter((t) => /genre|category|cuisine|occupation/.test(t)).slice(0, 25),
     tagNames: (e.tags ?? []).filter((t) => /genre|category/.test(t.id)).map((t) => t.name).slice(0, 6),
     priceLevel: p.price_level ?? null,
     isClosed: p.is_closed ?? null,
@@ -95,6 +102,15 @@ for (const [cat, p] of Object.entries(CATS)) {
     packs[city].lists[cat] = (j?.results?.entities ?? []).map(slim);
   });
 }
+if (NICHE) for (const [cat, p] of Object.entries(NICHE_CATS)) {
+  const keep = (j) => (j?.results?.entities ?? []).filter((e) => !(cat === "celeb" && political(e)));
+  for (const country of ["United States", "India"]) tasks.push(async () => { const j = await q({ ...p, "signal.location.query": country }); national[`${cat}|${country}`] = { results: { entities: keep(j) } }; });
+  for (const city of [...US, ...IN]) tasks.push(async () => {
+    const j = await q({ ...p, "signal.location.query": city });
+    packs[city].localities[cat] = disamb(j);
+    packs[city].lists[cat] = keep(j).map(slim);
+  });
+}
 for (const [country, cities] of [["United States", US], ["India", IN]]) {
   const p = { "filter.type": "urn:entity:brand", "filter.tags": GROCERY_TAG[country] };
   tasks.push(async () => { national[`grocery|${country}`] = await q({ ...p, "signal.location.query": country }); });
@@ -120,7 +136,7 @@ if (okCalls < tasks.length * 0.8) {
 }
 
 fs.mkdirSync(OUT, { recursive: true });
-for (const cat of [...Object.keys(CATS), "grocery"]) for (const country of ["United States", "India"]) {
+for (const cat of [...Object.keys(CATS), "grocery", ...(NICHE ? Object.keys(NICHE_CATS) : [])]) for (const country of ["United States", "India"]) {
   const list = (national[`${cat}|${country}`]?.results?.entities ?? []).map(slim);
   fs.writeFileSync(path.join(OUT, `national__${cat}__${slug(country)}.json`), JSON.stringify(list));
 }
