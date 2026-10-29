@@ -80,6 +80,7 @@ for (const c of [...US, ...IN]) packs[c] = { city: c, country: US.includes(c) ? 
 
 for (const [cat, p] of Object.entries(CATS)) for (const country of ["United States", "India"]) national[`${cat}|${country}`] = ents(await q({ ...p, "signal.location.query": country }), cat);
 
+const screenTags = {};
 for (const [city, words] of Object.entries(SCREEN)) for (const w of words) {
   const j = await get("tags", { "filter.query": w, take: "10" });
   const ids = (j?.results?.tags ?? []).map((t) => t.id ?? t.tag_id).filter(Boolean);
@@ -89,7 +90,7 @@ for (const [city, words] of Object.entries(SCREEN)) for (const w of words) {
   sceneLog[`${city}|${w}`] = ids.slice(0, 6);
 }
 // Scene tags: Qloo's own tag ids for each city's words. Music tags filter musicians; other matches filter TV and people.
-const sceneTags = {}, screenTags = {};
+const sceneTags = {};
 for (const [city, words] of Object.entries(SCENE)) {
   sceneTags[city] = { music: [], other: [] };
   for (const w of words) {

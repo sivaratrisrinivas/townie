@@ -26,7 +26,7 @@ export async function POST(req: Request) {
   if (!city) return json({ status: "city_not_covered", message: `Not covered yet. Covered cities: ${CITIES.map((c) => c.name).join(", ")}.` });
   if (!packsReady()) return json({ status: "qloo_error", message: "Couldn't reach Qloo. Your joke is safe." }, 503);
 
-  const key = `${NICHE ? "n2" : "r4"}:${hash(joke, city.name)}`;
+  const key = `${NICHE ? "n3" : "r4"}:${hash(joke, city.name)}`;
   const floor = b.loosen ? POPULARITY_FLOOR - 0.2 : undefined;
   const cachedRaw = await get(key);
   const cached = cachedRaw ? (JSON.parse(cachedRaw) as Result) : null;
