@@ -15,6 +15,7 @@ const TOPICS: [string, RegExp][] = [
   ["area_tease", /\b(apartment|flat|rent|landlord|suburb\w*|neighbou?rhood|area|moved|move|lives? in|borough|downtown)\b/i],
   ["rivalry", /\b(better than|rival\w*|vs\.?|versus)\b/i],
 ];
+const GENERAL = ["habit", "slang"];
 const SPREAD: Record<string, number> = { high: 3, medium: 2, low: 1 };
 const words = (s: string) => new Set(s.toLowerCase().match(/[a-z]{4,}/g) ?? []);
 
@@ -35,9 +36,9 @@ export function jokeTopic(joke: string, slotCategory?: string): string | null {
 /** The single best local truth for this city and joke: category, then spread, then verified=full_text, then shared words. */
 export function pickAngle(city: string, joke: string, slotCategory?: string, truths: Truth[] = TRUTHS): Angle | null {
   const topic = jokeTopic(joke, slotCategory);
-  if (!topic) return null;
   const jw = words(joke);
-  const pool = truths.filter((t) => t.city === city && t.category === topic);
+  // TN-NICHE3: entertainment jokes rarely name a topic, so fall back to the city's general habits and slang.
+  const pool = topic ? truths.filter((t) => t.city === city && t.category === topic) : truths.filter((t) => t.city === city && GENERAL.includes(t.category));
   if (!pool.length) return null;
   const score = (t: Truth) => [SPREAD[t.spread] ?? 0, t.verified === "full_text" ? 1 : 0, [...words(t.reference + " " + t.why)].filter((w) => jw.has(w)).length];
   const best = pool.map((t, i) => ({ t, s: score(t), i })).sort((a, b) => b.s[0] - a.s[0] || b.s[1] - a.s[1] || b.s[2] - a.s[2] || a.i - b.i)[0].t;

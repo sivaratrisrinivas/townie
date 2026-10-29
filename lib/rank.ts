@@ -14,6 +14,9 @@ export const CLOSE_SCORE = 0.05; // H10 tie rule
 export const RISING_PCT = 0.1; // H9
 
 const RESTAURANT_DROP = /:(hotel|resort_hotel|shopping|shopping_mall|shopping_center|mall|event_venue|banquet_hall|convention_center)$|:hotel:|restaurant:banquet_hall/;
+// TN-NICHE3: a TV show whose name says another region's language does not land in this city (Survivor Tamil in Bengaluru).
+export const OTHER_LANGUAGE: Record<string, RegExp> = { Bengaluru: /\b(Tamil|Telugu|Malayalam|Marathi|Bangla|Bengali)\b/i };
+export const wrongLanguage = (city: string, name: string) => OTHER_LANGUAGE[city]?.test(name) ?? false;
 const POSTCARD = /(genre|category):place:(tourist_attraction|landmark|historical_landmark|attraction)$/;
 
 export interface Slot {
@@ -110,6 +113,7 @@ export function shortlist({ pack, countryPacks, national, slot, popularityFloor 
   if (sub && pack.subs?.[sub]?.length) pool = [...pool, ...pack.subs[sub]!.filter((g) => !pool.some((x) => x.id === g.id))];
   let items = pool.filter((i) => norm(i.name) !== norm(slot.text) && i.isClosed !== true); // Q1 closed guard
   items = items.filter((i) => !isOutOfTown(i, pack.city, pack.localities[list]));
+  if (list === "tv") items = items.filter((i) => !wrongLanguage(pack.city, i.name));
   if (isRestaurant) {
     items = items.filter((i) => !isRestaurantDropped(i)); // AC20
     items = [...items].sort((a, b) => (b.popularity ?? 0) - (a.popularity ?? 0) || (b.affinity ?? 0) - (a.affinity ?? 0));

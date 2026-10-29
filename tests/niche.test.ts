@@ -25,3 +25,16 @@ describe("niche flag", () => {
     expect(r.candidates.map((p) => p.name)).toContain("Willie Nelson");
   });
 });
+
+describe("TN-NICHE3", () => {
+  it("drops another region's TV show in Bengaluru only", async () => {
+    const { wrongLanguage } = await import("@/lib/rank");
+    expect(wrongLanguage("Bengaluru", "Survivor Tamil")).toBe(true);
+    expect(wrongLanguage("Chennai", "Survivor Tamil")).toBe(false);
+    expect(wrongLanguage("Bengaluru", "Comicstaan")).toBe(false);
+  });
+  it("an entertainment joke still gets a local angle", async () => {
+    const { pickAngle } = await import("@/lib/localAngle");
+    for (const c of ["Austin", "Mumbai", "Bengaluru", "Chennai"]) expect(pickAngle(c, "I am so old my first concert was Bon Jovi.", "music")).not.toBeNull();
+  });
+});
