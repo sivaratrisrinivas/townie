@@ -101,8 +101,6 @@ footer a { color:var(--graphite); display:inline-block; min-height:44px; min-wid
 .screen.back { animation-name: in-back; }
 @keyframes in-fwd { from { transform:translateX(28px); opacity:0; } }
 @keyframes in-back { from { transform:translateX(-28px); opacity:0; } }
-/* The step number rolls up to the next one, so progress feels counted. */
-.count .digit { display:inline-block; animation: roll .32s var(--spring) both; }
 @keyframes roll { from { transform:translateY(.7em); opacity:0; } }
 /* The main button depresses like a key, for clicks and for Enter. */
 button.primary:active { transform:scale(.97); }

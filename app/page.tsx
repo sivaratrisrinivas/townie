@@ -127,7 +127,6 @@ export default function Page() {
   };
   const [typing, setTyping] = useState(false);
   const typeT = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const stepNo = { joke: 1, city: 2, reveal: 3, why: 3 }[shown];
 
   return (
     <main>
@@ -135,7 +134,6 @@ export default function Page() {
 
       <nav className="progress" aria-label="Progress">
         {shown !== "joke" ? <button className="back" onClick={() => history.back()}><span aria-hidden="true">← </span>Back</button> : <span />}
-        <span className="count">Step <span className="digit" key={stepNo}>{stepNo}</span> of 3</span>
       </nav>
 
       {shown === "joke" && (
@@ -176,7 +174,7 @@ export default function Page() {
                 </div>)
               : unknownCity ? <p className="note">Not covered yet. Try one of: {cities.map((c) => c.name).join(", ")}.</p>
               : cityState === "loading" ? <p className="note">Checking the city list...</p>
-              : <p className="note">{cityObj?.note ?? "14 cities in the US and India."}</p>}
+              : cityObj?.note ? <p className="note">{cityObj.note}</p> : null}
           </div>
           <div className="row">
             <button className="primary big" disabled={!canRun || unknownCity} onClick={() => run()}>Townie it</button>
@@ -216,10 +214,9 @@ export default function Page() {
       {shown === "why" && res?.status === "ok" && output && slot && (
         <section className={`card screen ${dir}`} aria-labelledby="h-why">
           <h1 id="h-why" ref={headRef} tabIndex={-1}>Why {chosen?.name ?? "this"}?</h1>
-          {chosen && <p className="ev lead">{chosen.evidence} Same role: {slot.role}. {chosen.syllables} syllables. Source: Qloo Insights, {chosen.list === "tv" ? "TV show" : chosen.list === "restaurant" ? "place" : "brand"}.{res.locality ? ` Matched: ${res.locality}.` : ""}{res.cached ? " Cached." : ""}</p>}
-          {res.fewer && <p className="note">Only {res.picks?.length ?? 0} pick{res.picks?.length === 1 ? "" : "s"} cleared the bar for {res.city}. <button className="link" onClick={() => run({ loosen: true })}>Loosen popularity floor</button></p>}
+          {res.fewer && <p className="note">Only {res.picks?.length ?? 0} pick{res.picks?.length === 1 ? "" : "s"} cleared the bar for {res.city}. <button className="link" onClick={() => run({ loosen: true })}>Show more picks</button></p>}
           <fieldset className="setlist">
-            <legend><svg className="chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M5 21v-6" /><path d="M12 21V9" /><path d="M19 21V3" /></svg><strong>Set list for &quot;{slot.text}&quot; ({slot.role})</strong></legend>
+            <legend><strong>Qloo picks for &quot;{slot.text}&quot; ({slot.role})</strong></legend>
             <ul className="picks">
               {res.picks?.map((p, i) => (
                 <li key={p.id} className={p.id === sel ? "on" : ""} style={{ animationDelay: `${60 + i * 50}ms` }}>
@@ -227,11 +224,10 @@ export default function Page() {
                     <input type="radio" name="pick" checked={p.id === sel} onChange={() => setSel(p.id)} />
                     <span>
                       <span className="pname">{p.name}</span>{" "}
-                      <span className="ev">{p.evidence}{p.lift !== null && ` Lift ${p.lift >= 0 ? "+" : ""}${p.lift} ranks.`}{p.popularity !== null && ` Popularity ${p.popularity.toFixed(2)}.`}</span>
+                      <span className="ev">{p.evidence}</span>
                       <span className="lift" aria-hidden="true"><i style={{ transform: `scaleX(${Math.max(p.lift ?? 0, 0) / Math.max(1, ...(res.picks ?? []).map((q) => q.lift ?? 0))})`, animationDelay: `${200 + i * 80}ms` }} /></span>
                       {p.warning && <span className="tag warn">Heads up: this touches {p.warning}. Your call.{p.warningReason ? ` (${p.warningReason})` : ""}</span>}
                       {p.labels.map((l) => <span key={l} className="tag warn">{l}</span>)}
-                      {[...new Set(p.tagNames)].slice(0, 2).map((t, i) => <span key={t + i} className="tag">{t}</span>)}
                     </span>
                   </label>
                 </li>
@@ -260,7 +256,7 @@ export default function Page() {
       )}
 
       <footer>
-        <p>Local picks from <a href="https://www.qloo.com" target="_blank" rel="noreferrer">Qloo</a> taste data. Your jokes are never shown to anyone. <a href="https://github.com/sivaratrisrinivas/townie" target="_blank" rel="noreferrer">Source</a> (MIT)</p>
+        <p>Local picks from <a href="https://www.qloo.com" target="_blank" rel="noreferrer">Qloo</a> taste data. Your jokes are never shown to anyone. <a href="https://github.com/sivaratrisrinivas/townie" target="_blank" rel="noreferrer">Source</a></p>
       </footer>
     </main>
   );
