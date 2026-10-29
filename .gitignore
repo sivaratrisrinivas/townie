@@ -19,3 +19,5 @@ ive-*.png
 ive-motion*
 ive-assets*
 .feedback-token
+local/*.json
+local/*.log
