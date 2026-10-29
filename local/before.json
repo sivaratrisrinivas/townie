@@ -1,0 +1,786 @@
+[
+ {
+  "joke": "bonjovi",
+  "city": "New York City",
+  "status": "ok",
+  "slot": "Bon Jovi",
+  "pick": "Madonna",
+  "top": [
+   "Madonna",
+   "Mark Ronson",
+   "FKA twigs"
+  ],
+  "angle": "Rats with personality [habit]",
+  "msg": null
+ },
+ {
+  "joke": "bonjovi",
+  "city": "Los Angeles",
+  "status": "ok",
+  "slot": "Bon Jovi",
+  "pick": "Mark Ronson",
+  "top": [
+   "Mark Ronson",
+   "FKA twigs",
+   "Blood Orange"
+  ],
+  "angle": "'The Industry' [habit]",
+  "msg": null
+ },
+ {
+  "joke": "bonjovi",
+  "city": "Chicago",
+  "status": "ok",
+  "slot": "Bon Jovi",
+  "pick": "Jamila Woods",
+  "top": [
+   "Jamila Woods",
+   "Shea Coule\u00e9",
+   "Phoebe Bridgers"
+  ],
+  "angle": "Dibs: lawn chairs claiming shoveled spots [habit]",
+  "msg": null
+ },
+ {
+  "joke": "bonjovi",
+  "city": "Houston",
+  "status": "ok",
+  "slot": "Bon Jovi",
+  "pick": "James Smith",
+  "top": [
+   "James Smith",
+   "The Suffers",
+   "Monica"
+  ],
+  "angle": "Rodeo season: boots at the office [habit]",
+  "msg": null
+ },
+ {
+  "joke": "bonjovi",
+  "city": "Austin",
+  "status": "ok",
+  "slot": "Bon Jovi",
+  "pick": "Willie Nelson",
+  "top": [
+   "Willie Nelson",
+   "Gary Clark Jr.",
+   "Leon Bridges"
+  ],
+  "angle": "Keep Austin Weird [habit]",
+  "msg": null
+ },
+ {
+  "joke": "bonjovi",
+  "city": "Atlanta",
+  "status": "ok",
+  "slot": "Bon Jovi",
+  "pick": "Brandy",
+  "top": [
+   "Brandy",
+   "Monica",
+   "Trouble"
+  ],
+  "angle": "Don't call it Hotlanta [slang]",
+  "msg": null
+ },
+ {
+  "joke": "bonjovi",
+  "city": "Boston",
+  "status": "ok",
+  "slot": "Bon Jovi",
+  "pick": "Adele",
+  "top": [
+   "Adele",
+   "Phoebe Bridgers",
+   "Maggie Rogers"
+  ],
+  "angle": "Wicked / pissah / so don't I [slang]",
+  "msg": null
+ },
+ {
+  "joke": "bonjovi",
+  "city": "Mumbai",
+  "status": "ok",
+  "slot": "Bon Jovi",
+  "pick": "Coldplay",
+  "top": [
+   "Coldplay",
+   "David Guetta",
+   "Justin Bieber"
+  ],
+  "angle": "Vegetable cutting and samosa parties in the ladies' compartment [habit]",
+  "msg": null
+ },
+ {
+  "joke": "bonjovi",
+  "city": "Delhi",
+  "status": "ok",
+  "slot": "Bon Jovi",
+  "pick": "Lucky Ali",
+  "top": [
+   "Lucky Ali",
+   "Bohemia",
+   "Justin Bieber"
+  ],
+  "angle": "'Na aapki, na meri' bargaining at Sarojini / Janpath [habit]",
+  "msg": null
+ },
+ {
+  "joke": "bonjovi",
+  "city": "Bengaluru",
+  "status": "ok",
+  "slot": "Bon Jovi",
+  "pick": "Coldplay",
+  "top": [
+   "Coldplay",
+   "Eminem",
+   "David Guetta"
+  ],
+  "angle": "'Adjust maadi' [slang]",
+  "msg": null
+ },
+ {
+  "joke": "bonjovi",
+  "city": "Hyderabad",
+  "status": "ok",
+  "slot": "Bon Jovi",
+  "pick": "Justin Bieber",
+  "top": [
+   "Justin Bieber",
+   "David Guetta",
+   "Shakira"
+  ],
+  "angle": "Nakko / kaiku / hau / mereku [slang]",
+  "msg": null
+ },
+ {
+  "joke": "bonjovi",
+  "city": "Chennai",
+  "status": "ok",
+  "slot": "Bon Jovi",
+  "pick": "Benny Dayal",
+  "top": [
+   "Benny Dayal",
+   "Sid Sriram",
+   "Eminem"
+  ],
+  "angle": "Beach date interrupted by a josiyakaari (fortune teller) [habit]",
+  "msg": null
+ },
+ {
+  "joke": "bonjovi",
+  "city": "Kolkata",
+  "status": "ok",
+  "slot": "Bon Jovi",
+  "pick": "Shakira",
+  "top": [
+   "Shakira",
+   "Coldplay",
+   "ZAYN"
+  ],
+  "angle": "Pandal hopping and 'best crowd' [habit]",
+  "msg": null
+ },
+ {
+  "joke": "bonjovi",
+  "city": "Pune",
+  "status": "ok",
+  "slot": "Bon Jovi",
+  "pick": "David Guetta",
+  "top": [
+   "David Guetta",
+   "Shakira",
+   "Coldplay"
+  ],
+  "angle": "Afternoon siesta: shops shut 1-4 pm [habit]",
+  "msg": null
+ },
+ {
+  "joke": "kardashians",
+  "city": "New York City",
+  "status": "ok",
+  "slot": "The Kardashians",
+  "pick": "Desus & Mero",
+  "top": [
+   "Desus & Mero",
+   "So You Think You Can Dance",
+   "State of the Culture"
+  ],
+  "angle": "Rats with personality [habit]",
+  "msg": null
+ },
+ {
+  "joke": "kardashians",
+  "city": "Los Angeles",
+  "status": "ok",
+  "slot": "The Kardashians",
+  "pick": "So You Think You Can Dance",
+  "top": [
+   "So You Think You Can Dance",
+   "Desus & Mero",
+   "Hey Qween!"
+  ],
+  "angle": "'The Industry' [habit]",
+  "msg": null
+ },
+ {
+  "joke": "kardashians",
+  "city": "Chicago",
+  "status": "ok",
+  "slot": "The Kardashians",
+  "pick": "That's My Jam",
+  "top": [
+   "That's My Jam",
+   "Desus & Mero",
+   "So You Think You Can Dance"
+  ],
+  "angle": "Dibs: lawn chairs claiming shoveled spots [habit]",
+  "msg": null
+ },
+ {
+  "joke": "kardashians",
+  "city": "Houston",
+  "status": "ok",
+  "slot": "The Kardashians",
+  "pick": "Toya & Reginae",
+  "top": [
+   "Toya & Reginae",
+   "Baddies West Reunion",
+   "About Last Night"
+  ],
+  "angle": "Rodeo season: boots at the office [habit]",
+  "msg": null
+ },
+ {
+  "joke": "kardashians",
+  "city": "Austin",
+  "status": "ok",
+  "slot": "The Kardashians",
+  "pick": "So You Think You Can Dance",
+  "top": [
+   "So You Think You Can Dance",
+   "The Dude Perfect Show",
+   "Desus & Mero"
+  ],
+  "angle": "Keep Austin Weird [habit]",
+  "msg": null
+ },
+ {
+  "joke": "kardashians",
+  "city": "Atlanta",
+  "status": "ok",
+  "slot": "The Kardashians",
+  "pick": "Baddies West Reunion",
+  "top": [
+   "Baddies West Reunion",
+   "Toya & Reginae",
+   "Sherman's Showcase"
+  ],
+  "angle": "Don't call it Hotlanta [slang]",
+  "msg": null
+ },
+ {
+  "joke": "kardashians",
+  "city": "Boston",
+  "status": "ok",
+  "slot": "The Kardashians",
+  "pick": "So You Think You Can Dance",
+  "top": [
+   "So You Think You Can Dance",
+   "Desus & Mero",
+   "Property Brothers"
+  ],
+  "angle": "Wicked / pissah / so don't I [slang]",
+  "msg": null
+ },
+ {
+  "joke": "kardashians",
+  "city": "Mumbai",
+  "status": "ok",
+  "slot": "The Kardashians",
+  "pick": "Zee Comedy Show",
+  "top": [
+   "Zee Comedy Show",
+   "Cricket ka Ticket",
+   "Titu Talks"
+  ],
+  "angle": "Vegetable cutting and samosa parties in the ladies' compartment [habit]",
+  "msg": null
+ },
+ {
+  "joke": "kardashians",
+  "city": "Delhi",
+  "status": "ok",
+  "slot": "The Kardashians",
+  "pick": "Cricket ka Ticket",
+  "top": [
+   "Cricket ka Ticket",
+   "Zee Comedy Show",
+   "The Dude Perfect Show"
+  ],
+  "angle": "'Na aapki, na meri' bargaining at Sarojini / Janpath [habit]",
+  "msg": null
+ },
+ {
+  "joke": "kardashians",
+  "city": "Bengaluru",
+  "status": "ok",
+  "slot": "The Kardashians",
+  "pick": "TVF Pitchers",
+  "top": [
+   "TVF Pitchers",
+   "Permanent Roommates",
+   "The Big Bang Theory"
+  ],
+  "angle": "'Adjust maadi' [slang]",
+  "msg": null
+ },
+ {
+  "joke": "kardashians",
+  "city": "Hyderabad",
+  "status": "ok",
+  "slot": "The Kardashians",
+  "pick": "Cricket ka Ticket",
+  "top": [
+   "Cricket ka Ticket",
+   "Titu Talks",
+   "The Dude Perfect Show"
+  ],
+  "angle": "Nakko / kaiku / hau / mereku [slang]",
+  "msg": null
+ },
+ {
+  "joke": "kardashians",
+  "city": "Chennai",
+  "status": "ok",
+  "slot": "The Kardashians",
+  "pick": "Never Have I Ever",
+  "top": [
+   "Never Have I Ever",
+   "Legends of Tomorrow",
+   "Survivor Tamil"
+  ],
+  "angle": "Beach date interrupted by a josiyakaari (fortune teller) [habit]",
+  "msg": null
+ },
+ {
+  "joke": "kardashians",
+  "city": "Kolkata",
+  "status": "ok",
+  "slot": "The Kardashians",
+  "pick": "Zee Comedy Show",
+  "top": [
+   "Zee Comedy Show",
+   "Cricket ka Ticket",
+   "Khatron Ke Khiladi: Made in India"
+  ],
+  "angle": "Pandal hopping and 'best crowd' [habit]",
+  "msg": null
+ },
+ {
+  "joke": "kardashians",
+  "city": "Pune",
+  "status": "ok",
+  "slot": "The Kardashians",
+  "pick": "Zee Comedy Show",
+  "top": [
+   "Zee Comedy Show",
+   "Cricket ka Ticket",
+   "Titu Talks"
+  ],
+  "angle": "Afternoon siesta: shops shut 1-4 pm [habit]",
+  "msg": null
+ },
+ {
+  "joke": "cruise",
+  "city": "New York City",
+  "status": "ok",
+  "slot": "Tom Cruise",
+  "pick": "Drake",
+  "top": [
+   "Drake",
+   "Fabolous",
+   "Nas"
+  ],
+  "angle": "Rats with personality [habit]",
+  "msg": null
+ },
+ {
+  "joke": "cruise",
+  "city": "Los Angeles",
+  "status": "ok",
+  "slot": "Tom Cruise",
+  "pick": "Drake",
+  "top": [
+   "Drake",
+   "YG",
+   "Issa Rae"
+  ],
+  "angle": "'The Industry' [habit]",
+  "msg": null
+ },
+ {
+  "joke": "cruise",
+  "city": "Chicago",
+  "status": "ok",
+  "slot": "Tom Cruise",
+  "pick": "Lizzo",
+  "top": [
+   "Lizzo",
+   "Issa Rae",
+   "Dan Levy"
+  ],
+  "angle": "Dibs: lawn chairs claiming shoveled spots [habit]",
+  "msg": null
+ },
+ {
+  "joke": "cruise",
+  "city": "Houston",
+  "status": "ok",
+  "slot": "Tom Cruise",
+  "pick": "J. J. Watt",
+  "top": [
+   "J. J. Watt",
+   "Bun B",
+   "Paul Wall"
+  ],
+  "angle": "Rodeo season: boots at the office [habit]",
+  "msg": null
+ },
+ {
+  "joke": "cruise",
+  "city": "Austin",
+  "status": "ok",
+  "slot": "Tom Cruise",
+  "pick": "Kevin Hart",
+  "top": [
+   "Kevin Hart",
+   "J. J. Watt",
+   "Lizzo"
+  ],
+  "angle": "Keep Austin Weird [habit]",
+  "msg": null
+ },
+ {
+  "joke": "cruise",
+  "city": "Atlanta",
+  "status": "ok",
+  "slot": "Tom Cruise",
+  "pick": "Lil Baby",
+  "top": [
+   "Lil Baby",
+   "Gucci Mane",
+   "Druski"
+  ],
+  "angle": "Don't call it Hotlanta [slang]",
+  "msg": null
+ },
+ {
+  "joke": "cruise",
+  "city": "Boston",
+  "status": "ok",
+  "slot": "Tom Cruise",
+  "pick": "Lizzo",
+  "top": [
+   "Lizzo",
+   "Dan Levy",
+   "Chrissy Teigen"
+  ],
+  "angle": "Wicked / pissah / so don't I [slang]",
+  "msg": null
+ },
+ {
+  "joke": "cruise",
+  "city": "Mumbai",
+  "status": "ok",
+  "slot": "Tom Cruise",
+  "pick": "Bhuvan Bam",
+  "top": [
+   "Bhuvan Bam",
+   "Divine",
+   "Vicky Kaushal"
+  ],
+  "angle": "Vegetable cutting and samosa parties in the ladies' compartment [habit]",
+  "msg": null
+ },
+ {
+  "joke": "cruise",
+  "city": "Delhi",
+  "status": "ok",
+  "slot": "Tom Cruise",
+  "pick": "Bhuvan Bam",
+  "top": [
+   "Bhuvan Bam",
+   "Mouni Roy",
+   "Diljit Dosanjh"
+  ],
+  "angle": "'Na aapki, na meri' bargaining at Sarojini / Janpath [habit]",
+  "msg": null
+ },
+ {
+  "joke": "cruise",
+  "city": "Bengaluru",
+  "status": "ok",
+  "slot": "Tom Cruise",
+  "pick": "Yash",
+  "top": [
+   "Yash",
+   "Pooja Hegde",
+   "Rashmika Mandanna"
+  ],
+  "angle": "'Adjust maadi' [slang]",
+  "msg": null
+ },
+ {
+  "joke": "cruise",
+  "city": "Hyderabad",
+  "status": "ok",
+  "slot": "Tom Cruise",
+  "pick": "Sonu Sood",
+  "top": [
+   "Sonu Sood",
+   "Varun Tej",
+   "Nani"
+  ],
+  "angle": "Nakko / kaiku / hau / mereku [slang]",
+  "msg": null
+ },
+ {
+  "joke": "cruise",
+  "city": "Chennai",
+  "status": "ok",
+  "slot": "Tom Cruise",
+  "pick": "Trisha Krishnan",
+  "top": [
+   "A. R. Rahman",
+   "Trisha Krishnan",
+   "Amala Paul"
+  ],
+  "angle": "Beach date interrupted by a josiyakaari (fortune teller) [habit]",
+  "msg": null
+ },
+ {
+  "joke": "cruise",
+  "city": "Kolkata",
+  "status": "ok",
+  "slot": "Tom Cruise",
+  "pick": "Bhuvan Bam",
+  "top": [
+   "Bhuvan Bam",
+   "Mouni Roy",
+   "Vicky Kaushal"
+  ],
+  "angle": "Pandal hopping and 'best crowd' [habit]",
+  "msg": null
+ },
+ {
+  "joke": "cruise",
+  "city": "Pune",
+  "status": "ok",
+  "slot": "Tom Cruise",
+  "pick": "Bhuvan Bam",
+  "top": [
+   "Bhuvan Bam",
+   "Vicky Kaushal",
+   "Ratan Tata"
+  ],
+  "angle": "Afternoon siesta: shops shut 1-4 pm [habit]",
+  "msg": null
+ },
+ {
+  "joke": "swift",
+  "city": "New York City",
+  "status": "ok",
+  "slot": "Taylor Swift",
+  "pick": "Madonna",
+  "top": [
+   "Madonna",
+   "Beyonc\u00e9",
+   "Mark Ronson"
+  ],
+  "angle": "Rats with personality [habit]",
+  "msg": null
+ },
+ {
+  "joke": "swift",
+  "city": "Los Angeles",
+  "status": "ok",
+  "slot": "Taylor Swift",
+  "pick": "Mark Ronson",
+  "top": [
+   "Mark Ronson",
+   "FKA twigs",
+   "Blood Orange"
+  ],
+  "angle": "'The Industry' [habit]",
+  "msg": null
+ },
+ {
+  "joke": "swift",
+  "city": "Chicago",
+  "status": "ok",
+  "slot": "Taylor Swift",
+  "pick": "Beyonc\u00e9",
+  "top": [
+   "Beyonc\u00e9",
+   "Shea Coule\u00e9",
+   "St. Vincent"
+  ],
+  "angle": "Dibs: lawn chairs claiming shoveled spots [habit]",
+  "msg": null
+ },
+ {
+  "joke": "swift",
+  "city": "Houston",
+  "status": "ok",
+  "slot": "Taylor Swift",
+  "pick": "Kelly Rowland",
+  "top": [
+   "Kelly Rowland",
+   "James Smith",
+   "Monica"
+  ],
+  "angle": "Rodeo season: boots at the office [habit]",
+  "msg": null
+ },
+ {
+  "joke": "swift",
+  "city": "Austin",
+  "status": "ok",
+  "slot": "Taylor Swift",
+  "pick": "Willie Nelson",
+  "top": [
+   "Willie Nelson",
+   "St. Vincent",
+   "Leon Bridges"
+  ],
+  "angle": "Keep Austin Weird [habit]",
+  "msg": null
+ },
+ {
+  "joke": "swift",
+  "city": "Atlanta",
+  "status": "ok",
+  "slot": "Taylor Swift",
+  "pick": "Kelly Rowland",
+  "top": [
+   "Kelly Rowland",
+   "Brandy",
+   "Monica"
+  ],
+  "angle": "Don't call it Hotlanta [slang]",
+  "msg": null
+ },
+ {
+  "joke": "swift",
+  "city": "Boston",
+  "status": "ok",
+  "slot": "Taylor Swift",
+  "pick": "Beyonc\u00e9",
+  "top": [
+   "Beyonc\u00e9",
+   "Adele",
+   "Phoebe Bridgers"
+  ],
+  "angle": "Wicked / pissah / so don't I [slang]",
+  "msg": null
+ },
+ {
+  "joke": "swift",
+  "city": "Mumbai",
+  "status": "ok",
+  "slot": "Taylor Swift",
+  "pick": "Coldplay",
+  "top": [
+   "Coldplay",
+   "David Guetta",
+   "Justin Bieber"
+  ],
+  "angle": "Vegetable cutting and samosa parties in the ladies' compartment [habit]",
+  "msg": null
+ },
+ {
+  "joke": "swift",
+  "city": "Delhi",
+  "status": "ok",
+  "slot": "Taylor Swift",
+  "pick": "Lucky Ali",
+  "top": [
+   "Lucky Ali",
+   "Prateek Kuhad",
+   "Justin Bieber"
+  ],
+  "angle": "'Na aapki, na meri' bargaining at Sarojini / Janpath [habit]",
+  "msg": null
+ },
+ {
+  "joke": "swift",
+  "city": "Bengaluru",
+  "status": "ok",
+  "slot": "Taylor Swift",
+  "pick": "Coldplay",
+  "top": [
+   "Coldplay",
+   "Eminem",
+   "David Guetta"
+  ],
+  "angle": "'Adjust maadi' [slang]",
+  "msg": null
+ },
+ {
+  "joke": "swift",
+  "city": "Hyderabad",
+  "status": "ok",
+  "slot": "Taylor Swift",
+  "pick": "Justin Bieber",
+  "top": [
+   "Justin Bieber",
+   "David Guetta",
+   "Shakira"
+  ],
+  "angle": "Nakko / kaiku / hau / mereku [slang]",
+  "msg": null
+ },
+ {
+  "joke": "swift",
+  "city": "Chennai",
+  "status": "ok",
+  "slot": "Taylor Swift",
+  "pick": "Benny Dayal",
+  "top": [
+   "Benny Dayal",
+   "Sid Sriram",
+   "Eminem"
+  ],
+  "angle": "Beach date interrupted by a josiyakaari (fortune teller) [habit]",
+  "msg": null
+ },
+ {
+  "joke": "swift",
+  "city": "Kolkata",
+  "status": "ok",
+  "slot": "Taylor Swift",
+  "pick": "Shakira",
+  "top": [
+   "Shakira",
+   "Coldplay",
+   "ZAYN"
+  ],
+  "angle": "Pandal hopping and 'best crowd' [habit]",
+  "msg": null
+ },
+ {
+  "joke": "swift",
+  "city": "Pune",
+  "status": "ok",
+  "slot": "Taylor Swift",
+  "pick": "David Guetta",
+  "top": [
+   "David Guetta",
+   "Shakira",
+   "Coldplay"
+  ],
+  "angle": "Afternoon siesta: shops shut 1-4 pm [habit]",
+  "msg": null
+ }
+]

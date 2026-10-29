@@ -1,0 +1,590 @@
+[
+ {
+  "joke": "bonjovi",
+  "city": "New York City",
+  "status": "qloo_empty",
+  "slot": "Bon Jovi",
+  "pick": null,
+  "top": [],
+  "angle": "Hip hop started at 1520 Sedgwick Avenue. [music]",
+  "msg": "Qloo has no musicians data for New York City yet."
+ },
+ {
+  "joke": "bonjovi",
+  "city": "Los Angeles",
+  "status": "qloo_empty",
+  "slot": "Bon Jovi",
+  "pick": null,
+  "top": [],
+  "angle": "The Sunset Strip. [music]",
+  "msg": "Qloo has no musicians data for Los Angeles yet."
+ },
+ {
+  "joke": "bonjovi",
+  "city": "Chicago",
+  "status": "qloo_empty",
+  "slot": "Bon Jovi",
+  "pick": null,
+  "top": [],
+  "angle": "House music was born at the Warehouse. [music]",
+  "msg": "Qloo has no musicians data for Chicago yet."
+ },
+ {
+  "joke": "bonjovi",
+  "city": "Houston",
+  "status": "qloo_empty",
+  "slot": "Bon Jovi",
+  "pick": null,
+  "top": [],
+  "angle": "DJ Screw and chopped and screwed. [music]",
+  "msg": "Qloo has no musicians data for Houston yet."
+ },
+ {
+  "joke": "bonjovi",
+  "city": "Austin",
+  "status": "qloo_empty",
+  "slot": "Bon Jovi",
+  "pick": null,
+  "top": [],
+  "angle": "Live Music Capital of the World. [music]",
+  "msg": "Qloo has no musicians data for Austin yet."
+ },
+ {
+  "joke": "bonjovi",
+  "city": "Atlanta",
+  "status": "qloo_empty",
+  "slot": "Bon Jovi",
+  "pick": null,
+  "top": [],
+  "angle": "Magic City breaks the hits. [music]",
+  "msg": "Qloo has no musicians data for Atlanta yet."
+ },
+ {
+  "joke": "bonjovi",
+  "city": "Boston",
+  "status": "qloo_empty",
+  "slot": "Bon Jovi",
+  "pick": null,
+  "top": [],
+  "angle": "Sweet Caroline in the eighth at Fenway. [music]",
+  "msg": "Qloo has no musicians data for Boston yet."
+ },
+ {
+  "joke": "bonjovi",
+  "city": "Mumbai",
+  "status": "ok",
+  "slot": "Bon Jovi",
+  "pick": "Sonu Nigam",
+  "top": [
+   "Sonu Nigam",
+   "Pritam",
+   "Kailash Kher"
+  ],
+  "angle": "Gully rap from Dharavi. [music]",
+  "msg": null
+ },
+ {
+  "joke": "bonjovi",
+  "city": "Delhi",
+  "status": "ok",
+  "slot": "Bon Jovi",
+  "pick": "Sukhwinder Singh",
+  "top": [
+   "Sukhwinder Singh",
+   "Mika Singh",
+   "Imran Khan"
+  ],
+  "angle": "Punjabi beats at every Delhi wedding. [music]",
+  "msg": null
+ },
+ {
+  "joke": "bonjovi",
+  "city": "Bengaluru",
+  "status": "qloo_empty",
+  "slot": "Bon Jovi",
+  "pick": null,
+  "top": [],
+  "angle": "India's rock and metal capital. [music]",
+  "msg": "Qloo has no musicians data for Bengaluru yet."
+ },
+ {
+  "joke": "bonjovi",
+  "city": "Hyderabad",
+  "status": "rate_limited",
+  "slot": null,
+  "pick": null,
+  "top": [],
+  "angle": null,
+  "msg": "You've used today's free runs. Examples and cached jokes still work."
+ },
+ {
+  "joke": "bonjovi",
+  "city": "Chennai",
+  "status": "ok",
+  "slot": "Bon Jovi",
+  "pick": "Sid Sriram",
+  "top": [
+   "Sid Sriram",
+   "Yuvan Shankar Raja",
+   "Karthik"
+  ],
+  "angle": "December music season. [music]",
+  "msg": null
+ },
+ {
+  "joke": "bonjovi",
+  "city": "Kolkata",
+  "status": "rate_limited",
+  "slot": null,
+  "pick": null,
+  "top": [],
+  "angle": null,
+  "msg": "You've used today's free runs. Examples and cached jokes still work."
+ },
+ {
+  "joke": "bonjovi",
+  "city": "Pune",
+  "status": "ok",
+  "slot": "Bon Jovi",
+  "pick": "Lucky Ali",
+  "top": [
+   "Lucky Ali",
+   "The Local Train",
+   "Amit Trivedi"
+  ],
+  "angle": "Sawai Gandharva in December. [music]",
+  "msg": null
+ },
+ {
+  "joke": "kardashians",
+  "city": "New York City",
+  "status": "qloo_empty",
+  "slot": "The Kardashians",
+  "pick": null,
+  "top": [],
+  "angle": "Everyone has been on Law & Order. [screen]",
+  "msg": "Qloo has no TV data for New York City yet."
+ },
+ {
+  "joke": "kardashians",
+  "city": "Los Angeles",
+  "status": "qloo_empty",
+  "slot": "The Kardashians",
+  "pick": null,
+  "top": [],
+  "angle": "Your waiter is an actor. [screen]",
+  "msg": "Qloo has no TV data for Los Angeles yet."
+ },
+ {
+  "joke": "kardashians",
+  "city": "Chicago",
+  "status": "rate_limited",
+  "slot": null,
+  "pick": null,
+  "top": [],
+  "angle": null,
+  "msg": "You've used today's free runs. Examples and cached jokes still work."
+ },
+ {
+  "joke": "kardashians",
+  "city": "Houston",
+  "status": "rate_limited",
+  "slot": null,
+  "pick": null,
+  "top": [],
+  "angle": null,
+  "msg": "You've used today's free runs. Examples and cached jokes still work."
+ },
+ {
+  "joke": "kardashians",
+  "city": "Austin",
+  "status": "qloo_empty",
+  "slot": "The Kardashians",
+  "pick": null,
+  "top": [],
+  "angle": "Friday Night Lights was shot here. [screen]",
+  "msg": "Qloo has no TV data for Austin yet."
+ },
+ {
+  "joke": "kardashians",
+  "city": "Atlanta",
+  "status": "rate_limited",
+  "slot": null,
+  "pick": null,
+  "top": [],
+  "angle": null,
+  "msg": "You've used today's free runs. Examples and cached jokes still work."
+ },
+ {
+  "joke": "kardashians",
+  "city": "Boston",
+  "status": "rate_limited",
+  "slot": null,
+  "pick": null,
+  "top": [],
+  "angle": null,
+  "msg": "You've used today's free runs. Examples and cached jokes still work."
+ },
+ {
+  "joke": "kardashians",
+  "city": "Mumbai",
+  "status": "qloo_empty",
+  "slot": "The Kardashians",
+  "pick": null,
+  "top": [],
+  "angle": "Waiting outside Mannat. [screen]",
+  "msg": "Qloo has no TV data for Mumbai yet."
+ },
+ {
+  "joke": "kardashians",
+  "city": "Delhi",
+  "status": "qloo_empty",
+  "slot": "The Kardashians",
+  "pick": null,
+  "top": [],
+  "angle": "Chandni Chowk is in every Delhi film. [screen]",
+  "msg": "Qloo has no TV data for Delhi yet."
+ },
+ {
+  "joke": "kardashians",
+  "city": "Bengaluru",
+  "status": "qloo_empty",
+  "slot": "The Kardashians",
+  "pick": null,
+  "top": [],
+  "angle": "Milk abhishekam on an 80-foot cutout. [screen]",
+  "msg": "Qloo has no TV data for Bengaluru yet."
+ },
+ {
+  "joke": "kardashians",
+  "city": "Hyderabad",
+  "status": "rate_limited",
+  "slot": null,
+  "pick": null,
+  "top": [],
+  "angle": null,
+  "msg": "You've used today's free runs. Examples and cached jokes still work."
+ },
+ {
+  "joke": "kardashians",
+  "city": "Chennai",
+  "status": "qloo_empty",
+  "slot": "The Kardashians",
+  "pick": null,
+  "top": [],
+  "angle": "Offices close for a Rajinikanth release. [screen]",
+  "msg": "Qloo has no TV data for Chennai yet."
+ },
+ {
+  "joke": "kardashians",
+  "city": "Kolkata",
+  "status": "rate_limited",
+  "slot": null,
+  "pick": null,
+  "top": [],
+  "angle": null,
+  "msg": "You've used today's free runs. Examples and cached jokes still work."
+ },
+ {
+  "joke": "kardashians",
+  "city": "Pune",
+  "status": "rate_limited",
+  "slot": null,
+  "pick": null,
+  "top": [],
+  "angle": null,
+  "msg": "You've used today's free runs. Examples and cached jokes still work."
+ },
+ {
+  "joke": "cruise",
+  "city": "New York City",
+  "status": "rate_limited",
+  "slot": null,
+  "pick": null,
+  "top": [],
+  "angle": null,
+  "msg": "You've used today's free runs. Examples and cached jokes still work."
+ },
+ {
+  "joke": "cruise",
+  "city": "Los Angeles",
+  "status": "qloo_empty",
+  "slot": "Tom Cruise",
+  "pick": null,
+  "top": [],
+  "angle": "Your waiter is an actor. [screen]",
+  "msg": "Qloo has no stars data for Los Angeles yet."
+ },
+ {
+  "joke": "cruise",
+  "city": "Chicago",
+  "status": "qloo_empty",
+  "slot": "Tom Cruise",
+  "pick": null,
+  "top": [],
+  "angle": "The Bear and 'Yes, chef'. [screen]",
+  "msg": "Qloo has no stars data for Chicago yet."
+ },
+ {
+  "joke": "cruise",
+  "city": "Houston",
+  "status": "qloo_empty",
+  "slot": "Tom Cruise",
+  "pick": null,
+  "top": [],
+  "angle": "Mo, the Netflix show set in Alief. [screen]",
+  "msg": "Qloo has no stars data for Houston yet."
+ },
+ {
+  "joke": "cruise",
+  "city": "Austin",
+  "status": "qloo_empty",
+  "slot": "Tom Cruise",
+  "pick": null,
+  "top": [],
+  "angle": "Friday Night Lights was shot here. [screen]",
+  "msg": "Qloo has no stars data for Austin yet."
+ },
+ {
+  "joke": "cruise",
+  "city": "Atlanta",
+  "status": "qloo_empty",
+  "slot": "Tom Cruise",
+  "pick": null,
+  "top": [],
+  "angle": "Hollywood of the South. [screen]",
+  "msg": "Qloo has no stars data for Atlanta yet."
+ },
+ {
+  "joke": "cruise",
+  "city": "Boston",
+  "status": "qloo_empty",
+  "slot": "Tom Cruise",
+  "pick": null,
+  "top": [],
+  "angle": "Every Boston movie is a Charlestown heist. [screen]",
+  "msg": "Qloo has no stars data for Boston yet."
+ },
+ {
+  "joke": "cruise",
+  "city": "Mumbai",
+  "status": "rate_limited",
+  "slot": null,
+  "pick": null,
+  "top": [],
+  "angle": null,
+  "msg": "You've used today's free runs. Examples and cached jokes still work."
+ },
+ {
+  "joke": "cruise",
+  "city": "Delhi",
+  "status": "qloo_empty",
+  "slot": "Tom Cruise",
+  "pick": null,
+  "top": [],
+  "angle": "Chandni Chowk is in every Delhi film. [screen]",
+  "msg": "Qloo has no stars data for Delhi yet."
+ },
+ {
+  "joke": "cruise",
+  "city": "Bengaluru",
+  "status": "qloo_empty",
+  "slot": "Tom Cruise",
+  "pick": null,
+  "top": [],
+  "angle": "Milk abhishekam on an 80-foot cutout. [screen]",
+  "msg": "Qloo has no stars data for Bengaluru yet."
+ },
+ {
+  "joke": "cruise",
+  "city": "Hyderabad",
+  "status": "rate_limited",
+  "slot": null,
+  "pick": null,
+  "top": [],
+  "angle": null,
+  "msg": "You've used today's free runs. Examples and cached jokes still work."
+ },
+ {
+  "joke": "cruise",
+  "city": "Chennai",
+  "status": "rate_limited",
+  "slot": null,
+  "pick": null,
+  "top": [],
+  "angle": null,
+  "msg": "You've used today's free runs. Examples and cached jokes still work."
+ },
+ {
+  "joke": "cruise",
+  "city": "Kolkata",
+  "status": "qloo_empty",
+  "slot": "Tom Cruise",
+  "pick": null,
+  "top": [],
+  "angle": "Feluda and Uttam Kumar at Pujo. [screen]",
+  "msg": "Qloo has no stars data for Kolkata yet."
+ },
+ {
+  "joke": "cruise",
+  "city": "Pune",
+  "status": "qloo_empty",
+  "slot": "Tom Cruise",
+  "pick": null,
+  "top": [],
+  "angle": "FTII on Law College Road. [screen]",
+  "msg": "Qloo has no stars data for Pune yet."
+ },
+ {
+  "joke": "swift",
+  "city": "New York City",
+  "status": "rate_limited",
+  "slot": null,
+  "pick": null,
+  "top": [],
+  "angle": null,
+  "msg": "You've used today's free runs. Examples and cached jokes still work."
+ },
+ {
+  "joke": "swift",
+  "city": "Los Angeles",
+  "status": "qloo_empty",
+  "slot": "Taylor Swift",
+  "pick": null,
+  "top": [],
+  "angle": "The Sunset Strip. [music]",
+  "msg": "Qloo has no musicians data for Los Angeles yet."
+ },
+ {
+  "joke": "swift",
+  "city": "Chicago",
+  "status": "rate_limited",
+  "slot": null,
+  "pick": null,
+  "top": [],
+  "angle": null,
+  "msg": "You've used today's free runs. Examples and cached jokes still work."
+ },
+ {
+  "joke": "swift",
+  "city": "Houston",
+  "status": "qloo_empty",
+  "slot": "Taylor Swift",
+  "pick": null,
+  "top": [],
+  "angle": "DJ Screw and chopped and screwed. [music]",
+  "msg": "Qloo has no musicians data for Houston yet."
+ },
+ {
+  "joke": "swift",
+  "city": "Austin",
+  "status": "qloo_empty",
+  "slot": "Taylor Swift",
+  "pick": null,
+  "top": [],
+  "angle": "Live Music Capital of the World. [music]",
+  "msg": "Qloo has no musicians data for Austin yet."
+ },
+ {
+  "joke": "swift",
+  "city": "Atlanta",
+  "status": "qloo_empty",
+  "slot": "Taylor Swift",
+  "pick": null,
+  "top": [],
+  "angle": "Magic City breaks the hits. [music]",
+  "msg": "Qloo has no musicians data for Atlanta yet."
+ },
+ {
+  "joke": "swift",
+  "city": "Boston",
+  "status": "rate_limited",
+  "slot": null,
+  "pick": null,
+  "top": [],
+  "angle": null,
+  "msg": "You've used today's free runs. Examples and cached jokes still work."
+ },
+ {
+  "joke": "swift",
+  "city": "Mumbai",
+  "status": "rate_limited",
+  "slot": null,
+  "pick": null,
+  "top": [],
+  "angle": null,
+  "msg": "You've used today's free runs. Examples and cached jokes still work."
+ },
+ {
+  "joke": "swift",
+  "city": "Delhi",
+  "status": "rate_limited",
+  "slot": null,
+  "pick": null,
+  "top": [],
+  "angle": null,
+  "msg": "You've used today's free runs. Examples and cached jokes still work."
+ },
+ {
+  "joke": "swift",
+  "city": "Bengaluru",
+  "status": "rate_limited",
+  "slot": null,
+  "pick": null,
+  "top": [],
+  "angle": null,
+  "msg": "You've used today's free runs. Examples and cached jokes still work."
+ },
+ {
+  "joke": "swift",
+  "city": "Hyderabad",
+  "status": "ok",
+  "slot": "Taylor Swift",
+  "pick": "Prateek Kuhad",
+  "top": [
+   "Prateek Kuhad",
+   "Sid Sriram",
+   "Ritviz"
+  ],
+  "angle": "Marfa at every Hyderabadi wedding. [music]",
+  "msg": null
+ },
+ {
+  "joke": "swift",
+  "city": "Chennai",
+  "status": "ok",
+  "slot": "Taylor Swift",
+  "pick": "Sid Sriram",
+  "top": [
+   "Sid Sriram",
+   "Karthik",
+   "Devi Sri Prasad"
+  ],
+  "angle": "December music season. [music]",
+  "msg": null
+ },
+ {
+  "joke": "swift",
+  "city": "Kolkata",
+  "status": "ok",
+  "slot": "Taylor Swift",
+  "pick": "Prateek Kuhad",
+  "top": [
+   "Prateek Kuhad",
+   "The Local Train",
+   "Ritviz"
+  ],
+  "angle": "Rabindra Sangeet at every para function. [music]",
+  "msg": null
+ },
+ {
+  "joke": "swift",
+  "city": "Pune",
+  "status": "rate_limited",
+  "slot": null,
+  "pick": null,
+  "top": [],
+  "angle": null,
+  "msg": "You've used today's free runs. Examples and cached jokes still work."
+ }
+]

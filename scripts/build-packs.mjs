@@ -148,3 +148,6 @@ for (const cat of Object.keys(CATS)) for (const country of ["United States", "In
 for (const [city, pk] of Object.entries(packs)) fs.writeFileSync(path.join(OUT, `${slug(city)}.json`), JSON.stringify(pk));
 fs.writeFileSync(path.join(OUT, "manifest.json"), JSON.stringify({ builtAt: new Date().toISOString(), calls }));
 console.log(`[packs] built ${Object.keys(packs).length} city packs with ${calls} Qloo calls`);
+// Fail the build rather than ship empty lists (Qloo throttles when two builds run at once); Vercel then keeps the last good deploy.
+const empty = Object.values(packs).flatMap((pk) => Object.entries(pk.lists).filter(([, l]) => !l?.length).map(([c]) => `${pk.city}/${c}`));
+if (empty.length > 3) { console.error(`[packs] too many empty lists, failing build: ${empty.join(", ")}`); process.exit(1); }
