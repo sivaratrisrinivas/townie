@@ -4,12 +4,12 @@ import { item, writePacks } from "./fixtures";
 import type { Pack } from "@/lib/types";
 
 const austinItems = [item("cm", 1, { name: "Central Market", tags: ["urn:tag:wikipedia_category:supermarkets_of_the_united_states"] }), item("hm", 2, { name: "H Mart" }), item("sp", 3, { name: "Sprouts" }), item("kr", 4, { name: "Kroger" })];
-const mk = (city: string, items = austinItems, expect = `${city}, Travis County, Texas, United States`): Pack => ({ city, country: "United States", lists: { grocery: items, tv: items }, localities: { grocery: expect, tv: expect } });
+const mk = (city: string, items = austinItems, expect = `${city}, Travis County, Texas, United States`): Pack => ({ city, country: "United States", lists: { music: items, tv: items }, localities: { music: expect, tv: expect } });
 
 let mod: typeof import("@/lib/agent");
 let cities: typeof import("@/lib/cities");
 beforeAll(async () => {
-  process.env.TOWNIE_PACK_DIR = writePacks([mk("Austin"), { ...mk("Houston"), localities: { grocery: "Houston County, Alabama, United States" } }], { "grocery__United_States": [item("kr", 1, { name: "Kroger" })] });
+  process.env.TOWNIE_PACK_DIR = writePacks([mk("Austin"), { ...mk("Houston"), localities: { music: "Houston County, Alabama, United States" } }], { "music__United_States": [item("kr", 1, { name: "Kroger" })] });
   mod = await import("@/lib/agent");
   cities = await import("@/lib/cities");
 });
@@ -26,7 +26,7 @@ function fakeLlm(slots: unknown[], warnings: unknown[] = []) {
   return { fn, calls };
 }
 const JOKE = "I only shop at Whole Foods because I like paying rent for a lemon.";
-const grocerySlot = (near_punch: boolean) => ({ text: "Whole Foods", category: "retail", role: "fancy grocery", role_keywords: ["supermarket"], near_punch });
+const grocerySlot = (near_punch: boolean) => ({ text: "Whole Foods", category: "music", role: "fancy grocery", role_keywords: [], near_punch });
 
 describe("agent loop", () => {
   it("uses at most 2 LLM calls and swaps one span (AC10, AC1)", async () => {
@@ -56,7 +56,7 @@ describe("agent loop", () => {
   it("uncovered category for a city gives the ship note (AC7)", async () => {
     const { fn, calls } = fakeLlm([{ text: "Olive Garden", category: "dining", role: "cheap chain", near_punch: true }]);
     const r = await mod.runAgent("My dad loves Olive Garden.", cities.resolveCity("Hyderabad")!, fn);
-    expect(r).toMatchObject({ status: "category_not_covered", message: "Hyderabad: retail brands and TV only for now." });
+    expect(r).toMatchObject({ status: "category_not_covered", message: expect.stringMatching(/^Hyderabad: Townie only swaps musicians, famous people and TV shows/) });
     expect(calls.length).toBe(1);
   });
   it("no slot found", async () => {
@@ -85,9 +85,8 @@ describe("cities (AC7, AC19)", () => {
   it("ship matrix notes", () => {
     const n = (c: string) => cities.shippedNote(cities.resolveCity(c)!);
     expect(n("Austin")).toBeNull();
-    expect(n("Mumbai")).toBe("Mumbai: retail brands only for now.");
-    expect(n("Delhi")).toBe("Delhi: retail brands and restaurants only for now.");
-    expect(n("Chennai")).toBe("Chennai: retail brands and TV only for now.");
+    expect(n("Mumbai")).toBeNull();
+    expect(cities.CITIES.every((c) => c.ships.join() === "music,celeb,tv")).toBe(true);
     expect(cities.CITIES.length).toBe(14);
   });
 });

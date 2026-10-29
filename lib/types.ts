@@ -14,7 +14,7 @@ export interface Item {
   city: string | null;
 }
 
-export type ListKey = "dining" | "retail" | "grocery" | "tv" | "restaurant";
+export type ListKey = "dining" | "retail" | "grocery" | "tv" | "restaurant" | "music" | "celeb";
 
 export interface Pack {
   city: string;

@@ -21,8 +21,8 @@ function AngleLine({ a }: { a?: LocalAngle | null }) {
 type City = { name: string; country: string; note: string | null };
 
 const EXAMPLES = [
-  { label: "Grocery bit", joke: "I only shop at Whole Foods because I like paying rent for a lemon." },
-  { label: "Chain restaurant bit", joke: "My dad thinks Olive Garden is fine dining. He tips in breadsticks." },
+  { label: "Music bit", joke: "I'm so old my first concert was Bon Jovi. I still have the tinnitus to prove it." },
+  { label: "Celebrity bit", joke: "My uncle thinks Tom Cruise is a role model. He has never run anywhere in his life." },
   { label: "TV show bit", joke: "My parents watch Bigg Boss every night like it's the news. Honestly, it is more accurate." },
 ];
 const STEPS = (c: string) => ["Finding the noun", `Asking Qloo about ${c}`, "Checking the beat"];
@@ -166,7 +166,7 @@ export default function Page() {
             {loading ? <p className="hushline" role="status"><Waveform />{STEPS(city)[step]}...{slow && " Taking longer than usual."}</p>
               : res && res.status !== "ok" ? (
                 <div className="banner warn" role="alert">
-                  <p>{res.status === "no_slot" ? "No local reference to swap here. Townie works on a named thing, like a store, chain or show." : res.message}</p>
+                  <p>{res.status === "no_slot" ? "No local reference to swap here. Townie swaps a named musician, famous person or TV show." : res.message}</p>
                   <AngleLine a={res.localAngle} />
                   {(res.status === "category_not_covered" || res.status === "qloo_empty") && res.slots && res.slots.length > 1 && <SlotMenu res={res} onPick={(i) => run({ slotIndex: i })} />}
                   {(res.status === "llm_error" || res.status === "qloo_error") && <button onClick={() => run()}>Retry</button>}
@@ -249,7 +249,7 @@ export default function Page() {
           )}
           {res.slots && res.slots.length > 1 && <SlotMenu res={res} onPick={(i) => { go("city", true); run({ slotIndex: i }); }} />}
           <details className="how"><summary>How Townie picks</summary>
-          <p>An AI finds the one named thing your joke leans on and its role. Code then ranks local options from Qloo taste data: popular in this city (30%), more popular here than in the country (30%), similar syllables (15%), similar ending sound (10%), not the obvious postcard pick (10%), short and sayable (5%). Brands popular across most cities in the country, tourist landmarks and fast-rising fads are labelled and never pre-selected. Religion, caste and politics get a warning; you choose.</p>
+          <p>An AI finds the one named thing your joke leans on and its role. Code then ranks local options from Qloo taste data: popular in this city (30%), more popular here than in the country (30%), similar syllables (15%), similar ending sound (10%), not the obvious postcard pick (10%), short and sayable (5%). Names popular across most cities in the country, tourist landmarks and fast-rising fads are labelled and never pre-selected. Religion, caste and politics get a warning; you choose.</p>
         </details>
           <div className="center"><button className="primary big" onClick={() => history.back()}>Back to the stage</button></div>
         </section>

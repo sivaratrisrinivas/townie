@@ -6,6 +6,7 @@ import type { Slot, Warning } from "./rank";
 import { finalize, listFor, shortlist } from "./rank";
 import { locate, stitch, swapAll } from "./stitch";
 import { codeFlag } from "./flags";
+import { NICHE } from "./niche";
 import type { Flag, Pick } from "./types";
 
 export interface FoundSlot extends Slot { occurrence: number; nearPunch: boolean; start: number; end: number }
@@ -22,15 +23,25 @@ const ROLE_VOCAB: Record<Category, string[]> = {
   retail: ["grocery", "supermarket", "apparel", "footwear", "beauty", "jewelry", "home_decor", "furniture", "fashion", "e_commerce", "online_retailers", "eyewear", "cosmetics", "sneakers", "department"],
   tv: ["comedy", "drama", "reality", "talk_show", "sitcom", "crime", "thriller", "romance", "competition", "documentary", "variety", "sports"],
   restaurant: [],
+  music: ["hip_hop", "rap", "pop", "rock", "country", "indie", "folk", "electronic", "bollywood", "filmi", "punjabi", "tamil", "telugu", "bengali", "r_b", "soul", "blues"],
+  celeb: ["actor", "actress", "athlete", "cricketer", "comedian", "influencer", "television_presenter", "singer", "rapper", "film"],
 };
 
-export const SYSTEM = `You help touring comedians localise one reference in a joke. You never rewrite the joke.
+const SYSTEM_SHOP = `You help touring comedians localise one reference in a joke. You never rewrite the joke.
 Step 1: call find_candidates with every swappable named thing (a brand, chain, store, restaurant, or TV show) copied EXACTLY as written, including script and case. Do not translate. Pick the one best slot (the reference the laugh leans on).
 Categories: dining = restaurant chains and fast food brands; retail = shops, grocery chains, fashion and online stores; tv = TV shows; restaurant = a single named local restaurant or bar. Use "none" for anything else (people, places, cities).
 role: 2 to 4 plain words for the comic role (for example "fancy grocery store", "cheap fast food", "trashy reality show").
 role_keywords: up to 3 from the allowed list for that category that describe the role.
 near_punch: true if the slot is in the same sentence as the punchline or in the sentence right before it. false only when the slot sits in an earlier setup sentence and the punch comes later.
 Step 2: you will get a numbered shortlist from city data. Call submit_review. Flag only candidates whose NAME clearly touches religion, caste or politics, with a short reason. Most shortlists have nothing to flag: then return an empty warnings array. Set mean_to_locals true only if swapping would turn the joke against the local audience. Do not rank or suggest names.`;
+
+// TN-NICHE: entertainment only. Shops and chains are not slots here.
+const SYSTEM_NICHE = SYSTEM_SHOP
+  .replace("(a brand, chain, store, restaurant, or TV show)", "(a musician or band, a famous person such as an actor, athlete or celebrity, or a TV show)")
+  .replace(/Categories: [^\n]*\n/, "Categories: music = a musician, singer, rapper or band; celeb = a famous person who is not mainly a musician (actor, athlete, TV personality, influencer); tv = a TV show. Use \"none\" for anything else, including brands, shops, chains, restaurants, places, cities and politicians.\n")
+  .replace(/for example "fancy grocery store", "cheap fast food", "trashy reality show"/, 'for example "hometown rap legend", "cheesy pop star", "trashy reality show"');
+export const SYSTEM = NICHE ? SYSTEM_NICHE : SYSTEM_SHOP;
+const CATS = NICHE ? ["music", "celeb", "tv", "none"] : ["dining", "retail", "tv", "restaurant", "none"];
 
 export const TOOLS: ToolDef[] = [
   {
@@ -50,7 +61,7 @@ export const TOOLS: ToolDef[] = [
             properties: {
               text: { type: "string", description: "exact substring of the joke" },
               occurrence: { type: "integer", description: "1 if it is the first time this text appears" },
-              category: { type: "string", enum: ["dining", "retail", "tv", "restaurant", "none"] },
+              category: { type: "string", enum: CATS },
               role: { type: "string" },
               role_keywords: { type: "array", items: { type: "string", enum: [...new Set(Object.values(ROLE_VOCAB).flat())] } },
               near_punch: { type: "boolean" },
@@ -93,7 +104,7 @@ export function toSlots(joke: string, raw: RawSlot[]): FoundSlot[] {
 
 /** Code-only step: rank candidates for a slot in a city. No LLM. */
 export function rankSlot(city: CityDef, slot: FoundSlot, popularityFloor?: number) {
-  if (!city.ships.includes(slot.category)) return { kind: "not_covered" as const, message: shippedNote(city) ?? `${city.name}: not covered for ${CATEGORY_LABEL[slot.category]}.` };
+  if (!city.ships.includes(slot.category)) return { kind: "not_covered" as const, message: shippedNote(city) ?? `${city.name}: Townie only swaps musicians, famous people and TV shows, so Qloo has nothing that fits ${CATEGORY_LABEL[slot.category]}.` };
   const pack = getPack(city.name);
   const list = listFor(slot);
   if (!pack || !(pack.lists[list]?.length)) return { kind: "empty" as const, message: `Qloo has no ${CATEGORY_LABEL[slot.category]} data for ${city.name} yet.` };
